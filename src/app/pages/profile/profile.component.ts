@@ -64,7 +64,7 @@ export class ProfileComponent implements OnInit {
     try {
       await this.authFeatureService.fetchCurrentUser();
       this.resetEditForm();
-    } catch (err) {
+    } catch {
       this.error.set('Failed to load user profile');
     } finally {
       this.loading.set(false);

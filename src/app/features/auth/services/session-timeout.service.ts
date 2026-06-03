@@ -17,11 +17,15 @@ export class SessionTimeoutService {
   private readonly WARNING_SECONDS = 60; // Show warning 1 minute before timeout
   private readonly TIMEOUT_MS = this.TIMEOUT_MINUTES * 60 * 1000;
   private readonly WARNING_MS = this.WARNING_SECONDS * 1000;
+  private readonly REFRESH_BUFFER_MS = 5 * 60 * 1000; // Refresh if token expires within 5 min
 
   // State
   private destroy$ = new Subject<void>();
   private userActivity$ = new Subject<void>();
   private showWarning = false;
+  private isRefreshing = false;
+  private lastRefreshCheck = 0;
+  private readonly REFRESH_THROTTLE_MS = 30_000; // Max 1 refresh check per 30s
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
@@ -59,11 +63,48 @@ export class SessionTimeoutService {
   private onUserActivity(): void {
     // Reset activity on any user interaction
     this.userActivity$.next();
-    
+
+    // Proactively refresh token if it's about to expire
+    this.tryRefreshToken();
+
     // Hide warning if shown
     if (this.showWarning) {
       this.showWarning = false;
       this.removeWarningUI();
+    }
+  }
+
+  private tryRefreshToken(): void {
+    const now = Date.now();
+
+    // Throttle: max 1 check every 30 seconds
+    if (now - this.lastRefreshCheck < this.REFRESH_THROTTLE_MS) return;
+    this.lastRefreshCheck = now;
+
+    // Avoid duplicate concurrent refresh calls
+    if (this.isRefreshing) return;
+
+    const token = this.authService.token();
+    if (!token) return;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const exp = payload?.exp;
+      if (!exp) return;
+
+      const expiresInMs = exp * 1000 - Date.now();
+      if (expiresInMs > 0 && expiresInMs < this.REFRESH_BUFFER_MS) {
+        // Token expires within 5 minutes — refresh silently
+        this.isRefreshing = true;
+        this.authService.refreshToken()
+          .then(() => { this.lastRefreshCheck = Date.now(); })
+          .catch(() => {
+            // Refresh failed; guard will handle it on next route change
+          })
+          .finally(() => { this.isRefreshing = false; });
+      }
+    } catch {
+      // Malformed token; ignore
     }
   }
 

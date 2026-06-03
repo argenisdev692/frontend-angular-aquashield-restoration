@@ -284,10 +284,8 @@ export class AuthFeatureService {
         localStorage.setItem('is_authenticated', 'true');
       }
     } catch (err: any) {
-      // Only logout on 401 Unauthorized. Network/server errors should not wipe session.
-      if (err?.status === 401) {
-        await this.logout();
-      }
+      // Don't auto-logout here — caller (authGuard) will try refreshToken first.
+      // logout() wipes refresh_token from localStorage, making refresh impossible.
       throw err;
     }
   }

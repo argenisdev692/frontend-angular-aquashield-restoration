@@ -1,4 +1,4 @@
-import { Component, input, model, computed, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, input, model, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,6 +12,7 @@ import { ThemeService } from '../../features/auth/services/theme.service';
 interface NavItem {
   icon: string;
   label: string;
+  route?: string;
   active: boolean;
 }
 
@@ -22,7 +23,6 @@ interface NavItem {
   styleUrl: './sidebar.component.css'
 })
 export class SidebarComponent {
-  private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
   private authService = inject(AuthFeatureService);
   private themeService = inject(ThemeService);
@@ -35,11 +35,11 @@ export class SidebarComponent {
   protected readonly user = this.authService.currentUser;
 
   menuItems = input<NavItem[]>([
-    { icon: 'pi pi-home', label: 'Dashboard', active: true },
-    { icon: 'pi pi-chart-line', label: 'Analytics', active: false },
-    { icon: 'pi pi-users', label: 'Users', active: false },
-    { icon: 'pi pi-briefcase', label: 'Projects', active: false },
-    { icon: 'pi pi-cog', label: 'Settings', active: false },
+    { icon: 'pi pi-home', label: 'Dashboard', route: '/dashboard', active: true },
+    { icon: 'pi pi-chart-line', label: 'Analytics', route: '/analytics', active: false },
+    { icon: 'pi pi-users', label: 'Users', route: '/users', active: false },
+    { icon: 'pi pi-briefcase', label: 'Projects', route: '/projects', active: false },
+    { icon: 'pi pi-cog', label: 'Settings', route: '/settings', active: false },
   ]);
 
   menuModel = computed<MenuItem[]>(() => this.menuItems() as unknown as MenuItem[]);
@@ -73,8 +73,10 @@ export class SidebarComponent {
     this.router.navigate(['/profile']);
   }
 
-  onDrawerHide(): void {
-    this.visible.set(false);
-    this.cdr.markForCheck();
+  navigate(route?: string): void {
+    if (route) {
+      this.visible.set(false);
+      this.router.navigate([route]);
+    }
   }
 }

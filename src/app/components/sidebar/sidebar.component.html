@@ -2,8 +2,7 @@
   [(visible)]="visible"
   position="left"
   styleClass="app-drawer"
-  [showCloseIcon]="true"
-  (onHide)="onDrawerHide()">
+  [showCloseIcon]="true">
 
   <ng-template #header>
     <div class="logo">
@@ -18,7 +17,8 @@
         <button
           [class]="getMenuItemClasses(item.active)"
           class="menu-item"
-          [attr.aria-label]="item.label">
+          [attr.aria-label]="item.label"
+          (click)="navigate(item.route)">
           <i class="menu-icon {{ item.icon }}"></i>
           <span class="menu-label">{{ item.label }}</span>
           @if (item.active) {

@@ -17,19 +17,20 @@ export const authGuard: CanActivateFn = async (_route, state) => {
     return true;
   }
 
-  // Try to validate the stored session by fetching current user.
-  // If the access token expired, fetchCurrentUser will call logout internally.
+  // Try to validate the stored session. If token expired (401),
+  // fetchCurrentUser throws without wiping session — we try refresh first.
   try {
     await authService.fetchCurrentUser();
     return true;
   } catch {
-    // fetchCurrentUser already handles logout on 401.
-    // If it fails, try a silent token refresh before redirecting.
+    // Token may be expired — try silent refresh before forcing login.
     try {
       await authService.refreshToken();
       await authService.fetchCurrentUser();
       return true;
     } catch {
+      // Refresh failed — clean session and redirect.
+      await authService.logout();
       await router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
       return false;
     }
