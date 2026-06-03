@@ -1,3 +1,10 @@
+/* Necesario para animar el ángulo de forma fluida */
+@property --border-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
 :host {
   display: block;
 }
@@ -10,10 +17,39 @@
   padding: var(--space-6) var(--space-8);
   background: color-mix(in srgb, var(--bg-surface) 60%, transparent);
   backdrop-filter: blur(20px);
-  border: 1px solid var(--border-default);
   border-radius: var(--radius-2xl);
   position: relative;
   z-index: 10;
+}
+
+/* El borde animado: vive en un ::before y se recorta a un anillo */
+.page-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent 0deg,
+    transparent 315deg,
+    var(--accent-primary) 348deg,
+    #9DEBFF 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  animation: border-rotate 3s linear infinite;
+}
+
+@keyframes border-rotate {
+  to { --border-angle: 360deg; }
 }
 
 .header-content {
@@ -256,6 +292,11 @@
 
 .notif-footer:hover {
   background: color-mix(in srgb, var(--accent-primary) 8%, transparent);
+}
+
+/* Accesibilidad: respeta a quien desactiva animaciones */
+@media (prefers-reduced-motion: reduce) {
+  .page-header::before { animation: none; }
 }
 
 @media (max-width: 768px) {

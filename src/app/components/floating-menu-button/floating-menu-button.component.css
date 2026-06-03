@@ -1,0 +1,82 @@
+.floating-menu-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999;
+
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: color-mix(in srgb, var(--bg-surface) 80%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-default);
+  box-shadow:
+    0 8px 32px color-mix(in srgb, var(--bg-void) 40%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent-primary) 10%, transparent);
+
+  color: var(--text-primary);
+  font-size: var(--text-xl);
+  cursor: pointer;
+
+  animation: floating-btn-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  transition: all var(--transition-slow);
+}
+
+.floating-menu-btn.drawer-open {
+  border-color: color-mix(in srgb, var(--accent-error) 40%, transparent);
+  box-shadow:
+    0 8px 32px color-mix(in srgb, var(--accent-error) 25%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent-error) 20%, transparent);
+  color: var(--accent-error);
+}
+
+.floating-menu-btn:hover {
+  transform: scale(1.12) translateY(-3px);
+  border-color: var(--border-strong);
+  box-shadow:
+    0 12px 40px color-mix(in srgb, var(--accent-primary) 30%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent-primary) 25%, transparent);
+  color: var(--accent-primary);
+}
+
+.floating-menu-btn.drawer-open:hover {
+  box-shadow:
+    0 12px 40px color-mix(in srgb, var(--accent-error) 35%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent-error) 30%, transparent);
+  color: var(--accent-error);
+}
+
+.floating-menu-btn:active {
+  transform: scale(0.95);
+}
+
+@keyframes floating-btn-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .floating-menu-btn {
+    animation: none;
+  }
+}
+
+/* Light mode adjustments */
+[data-theme="light"] .floating-menu-btn {
+  background: color-mix(in srgb, var(--bg-surface) 92%, transparent);
+  box-shadow: 0 8px 32px rgba(12, 35, 64, 0.12);
+}

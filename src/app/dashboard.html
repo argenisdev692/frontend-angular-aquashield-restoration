@@ -9,6 +9,8 @@
       [showNewClaim]="true"
       (menuToggle)="drawerVisible.set(true)" />
 
+    <app-floating-menu-button [drawerOpen]="drawerVisible()" (menuToggle)="drawerVisible.set(!drawerVisible())" />
+
     @defer {
       <section class="stats-grid">
         <app-dashboard-card

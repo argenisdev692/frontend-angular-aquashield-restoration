@@ -1,0 +1,10 @@
+@if (isVisible()) {
+  <button
+    class="floating-menu-btn"
+    [class.drawer-open]="drawerOpen()"
+    (click)="onClick()"
+    [attr.aria-label]="drawerOpen() ? 'Close navigation menu' : 'Open navigation menu'"
+    [title]="drawerOpen() ? 'Close menu' : 'Menu'">
+    <i class="pi" [class.pi-times]="drawerOpen()" [class.pi-bars]="!drawerOpen()"></i>
+  </button>
+}

@@ -7,6 +7,8 @@
     subtitle="Manage your account and security settings"
     (menuToggle)="drawerVisible.set(true)" />
 
+  <app-floating-menu-button [drawerOpen]="drawerVisible()" (menuToggle)="drawerVisible.set(!drawerVisible())" />
+
   @if (loading()) {
     <div class="profile-loading">
       <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
@@ -23,12 +25,13 @@
       <div class="profile-card">
         <div class="profile-card-header">
           <h2 class="card-title">Profile Information</h2>
-          <p-button
-            [label]="isEditing() ? 'Cancel' : 'Edit Profile'"
-            [icon]="isEditing() ? 'pi pi-times' : 'pi pi-pencil'"
-            [text]="true"
-            severity="secondary"
-            (onClick)="toggleEdit()" />
+          <button
+            class="btn-edit-profile"
+            [class.cancel-mode]="isEditing()"
+            (click)="toggleEdit()">
+            <i class="pi" [class.pi-times]="isEditing()" [class.pi-pencil]="!isEditing()"></i>
+            {{ isEditing() ? 'Cancel' : 'Edit Profile' }}
+          </button>
         </div>
 
         <div class="profile-photo-section">
@@ -222,12 +225,13 @@
               <label for="confirmPassword">Confirm New Password</label>
               <input pInputText id="confirmPassword" type="password" [(ngModel)]="passwordForm.confirmPassword" class="form-input" />
             </div>
-            <p-button
-              label="Update Password"
-              icon="pi pi-key"
-              styleClass="btn-primary-modern"
-              [loading]="savingPassword()"
-              (onClick)="changePassword()" />
+            <button
+              class="btn-primary-modern"
+              [disabled]="!canUpdatePassword() || savingPassword()"
+              (click)="changePassword()">
+              <i class="pi pi-key"></i>
+              Update Password
+            </button>
           </div>
         </div>
 
@@ -236,12 +240,12 @@
         <div class="security-section">
           <h3 class="security-title">Active Sessions</h3>
           <p class="security-desc">Log out of all other devices and sessions.</p>
-          <p-button
-            label="Logout All Sessions"
-            icon="pi pi-sign-out"
-            severity="danger"
-            [text]="true"
-            (onClick)="logoutAll()" />
+          <button
+            class="logout-link"
+            (click)="logoutAll()">
+            <i class="pi pi-sign-out"></i>
+            Logout All Sessions
+          </button>
         </div>
       </div>
 

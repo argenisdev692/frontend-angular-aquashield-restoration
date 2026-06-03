@@ -47,6 +47,51 @@
   font-weight: var(--font-semibold);
   color: var(--text-primary);
   margin: 0;
+  padding-left: var(--space-3);
+  border-left: 3px solid var(--accent-primary);
+  position: relative;
+}
+
+.card-title::before {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--grad-primary);
+  border-radius: 2px;
+}
+
+.btn-edit-profile {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: transparent;
+  color: var(--accent-primary);
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 30%, transparent);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btn-edit-profile:hover {
+  background: color-mix(in srgb, var(--accent-primary) 10%, transparent);
+  border-color: color-mix(in srgb, var(--accent-primary) 50%, transparent);
+}
+
+.btn-edit-profile.cancel-mode {
+  color: var(--accent-error);
+  border-color: color-mix(in srgb, var(--accent-error) 30%, transparent);
+}
+
+.btn-edit-profile.cancel-mode:hover {
+  background: color-mix(in srgb, var(--accent-error) 10%, transparent);
+  border-color: color-mix(in srgb, var(--accent-error) 50%, transparent);
 }
 
 .profile-photo-section {
@@ -346,6 +391,30 @@
   gap: var(--space-2);
   font-size: var(--text-sm);
   color: var(--text-secondary);
+}
+
+.logout-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--accent-error);
+  cursor: pointer;
+  transition: color var(--transition);
+}
+
+.logout-link:hover {
+  color: color-mix(in srgb, var(--accent-error) 70%, var(--text-primary));
+  text-decoration: underline;
+}
+
+.logout-link:active {
+  color: var(--accent-error);
 }
 
 @media (max-width: 768px) {

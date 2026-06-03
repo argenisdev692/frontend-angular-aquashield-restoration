@@ -18,6 +18,7 @@ import { SidebarComponent } from '../../components/sidebar/sidebar.component';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { FormSubmitButtonComponent } from '../../components/form-submit-button/form-submit-button.component';
 import { ImageCropperDialogComponent } from '../../components/image-cropper-dialog/image-cropper-dialog.component';
+import { FloatingMenuButtonComponent } from '../../components/floating-menu-button/floating-menu-button.component';
 
 @Component({
   selector: 'app-profile',
@@ -31,7 +32,8 @@ import { ImageCropperDialogComponent } from '../../components/image-cropper-dial
     SidebarComponent,
     PageHeaderComponent,
     FormSubmitButtonComponent,
-    ImageCropperDialogComponent
+    ImageCropperDialogComponent,
+    FloatingMenuButtonComponent
   ],
   providers: [MessageService],
   templateUrl: './profile.component.html',
@@ -57,6 +59,12 @@ export class ProfileComponent implements OnInit {
 
   protected editForm: Partial<UpdateProfileDto> = {};
   protected passwordForm = { currentPassword: '', newPassword: '', confirmPassword: '' };
+
+  protected readonly canUpdatePassword = computed(() => {
+    return !!this.passwordForm.currentPassword &&
+           !!this.passwordForm.newPassword &&
+           !!this.passwordForm.confirmPassword;
+  });
 
   async ngOnInit(): Promise<void> {
     await this.loadUser();
