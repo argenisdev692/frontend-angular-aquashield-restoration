@@ -58,6 +58,9 @@ export class LoginFormComponent {
   totpEmail = signal('');
   totpDigits = signal<string[]>(['', '', '', '', '', '']);
 
+  // ── Session expired banner ──
+  sessionExpired = signal(false);
+
   // ── Forgot password ──
   forgotPasswordMode = signal(false);
   forgotEmail = signal('');
@@ -100,10 +103,52 @@ export class LoginFormComponent {
     effect(() => { if (this.emailOtpDigits().some(d => d)) this.errorMessage.set(''); });
     effect(() => { if (this.totpDigits().some(d => d)) this.errorMessage.set(''); });
 
+    // Reset form when user becomes unauthenticated (handles same-route navigation after timeout)
+    effect(() => {
+      const isAuth = this.authService.isAuthenticated();
+      if (!isAuth) {
+        this.resetForm();
+      }
+    });
+
     // Fetch public company data for footer display
     this.companyDataService.companyDataControllerFindPublic()
       .then(data => this.companyData.set(data))
       .catch(() => { /* silently fail */ });
+  }
+
+  private resetForm(): void {
+    this.email.set('');
+    this.password.set('');
+    this.showPassword.set(false);
+    this.rememberMe.set(false);
+    this.errorMessage.set('');
+    this.successMessage.set('');
+    this.authMethod.set('password');
+    this.emailOtpEmail.set('');
+    this.emailOtpSent.set(false);
+    this.emailOtpDigits.set(['', '', '', '', '', '']);
+    this.totpEmail.set('');
+    this.totpDigits.set(['', '', '', '', '', '']);
+    this.forgotPasswordMode.set(false);
+    this.forgotEmail.set('');
+    this.forgotCodeSent.set(false);
+    this.resetCode.set('');
+    this.newPassword.set('');
+    this.confirmPassword.set('');
+    this.showNewPassword.set(false);
+    this.showConfirmPassword.set(false);
+    this.resetSuccess.set(false);
+    this.failedAttempts.set(0);
+    this.lockoutUntil.set(null);
+
+    // Show session-expired hint when redirected from a protected route
+    const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+    if (returnUrl) {
+      this.sessionExpired.set(true);
+    } else {
+      this.sessionExpired.set(false);
+    }
   }
 
   companyName = computed(() => this.companyData()?.companyName ?? 'AquaShield Restoration CRM');
@@ -143,6 +188,7 @@ export class LoginFormComponent {
         this.totpEmail.set(this.email());
         this.successMessage.set('Enter your authenticator code to continue');
       } else {
+        this.returnUrl = response.returnUrl || this.returnUrl;
         this.redirectAfterLoginBanner();
       }
     } catch {

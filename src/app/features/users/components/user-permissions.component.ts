@@ -344,6 +344,6 @@ export class UserPermissionsComponent {
   }
 
   onBack(): void {
-    this.router.navigate(['/users', this.userId()]);
+    this.router.navigate(['/users']);
   }
 }

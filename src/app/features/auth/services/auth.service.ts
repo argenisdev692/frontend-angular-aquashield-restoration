@@ -72,6 +72,7 @@ export class AuthFeatureService {
     twoFactorRequired?: boolean;
     mustChangePassword?: boolean;
     passwordExpiresAt?: string | null;
+    returnUrl?: string;
   }> {
     const rootUrl = (this.config.rootUrl || '').replace(/\/$/, '');
     const loginUrl = `${rootUrl}/api/v1/auth/login`;
@@ -109,10 +110,18 @@ export class AuthFeatureService {
       // Still allow the caller to decide navigation even if /me fails
     });
 
+    // Consume intended_url from session-timeout redirect so caller can navigate back to original page
+    if (!returnUrl && isPlatformBrowser(this.platformId)) {
+      returnUrl = localStorage.getItem('intended_url') ?? undefined;
+      if (returnUrl) {
+        localStorage.removeItem('intended_url');
+      }
+    }
+
     // Note: actual navigation is performed by the caller (login-form) after showing 'Redirecting...' message
     // to ensure the transient success banner is visible to the user.
 
-    return loginResponse;
+    return { ...loginResponse, returnUrl };
   }
 
   async verifyTwoFactor(challenge: VerifyTwoFactorChallengeDto, returnUrl?: string): Promise<void> {
@@ -248,7 +257,7 @@ export class AuthFeatureService {
     // Navigation intentionally left to the caller (login-form) so the 'Redirecting...' banner is visible.
   }
 
-  async logout(): Promise<void> {
+  async logout(returnUrl?: string): Promise<void> {
     try {
       await this.generatedAuthService.authControllerLogout();
     } catch {
@@ -265,7 +274,8 @@ export class AuthFeatureService {
         localStorage.removeItem('user');
       }
 
-      await this.router.navigate(['/login']);
+      const extras = returnUrl ? { queryParams: { returnUrl } } : undefined;
+      await this.router.navigate(['/login'], extras);
     }
   }
 

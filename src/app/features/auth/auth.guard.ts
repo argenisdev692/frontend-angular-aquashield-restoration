@@ -30,8 +30,7 @@ export const authGuard: CanActivateFn = async (_route, state) => {
       return true;
     } catch {
       // Refresh failed — clean session and redirect.
-      await authService.logout();
-      await router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
+      await authService.logout(state.url);
       return false;
     }
   }

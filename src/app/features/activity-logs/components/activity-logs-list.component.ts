@@ -78,12 +78,7 @@ export class ActivityLogsListComponent extends CrudListBase<any> {
       {
         key: 'status',
         label: 'Status',
-        type: 'select',
-        options: [
-          { label: 'Active', value: 'active' },
-          { label: 'Deleted', value: 'deleted' },
-          { label: 'All', value: 'all' },
-        ],
+        type: 'trash',
         placeholder: 'All',
       },
     ];

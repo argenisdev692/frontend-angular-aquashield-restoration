@@ -81,7 +81,17 @@
                 optionValue="value"
                 [placeholder]="field.placeholder ?? 'All'"
                 [showClear]="true"
-                appendTo="body"
+                styleClass="filter-select" />
+            }
+            @case ('trash') {
+              <p-select
+                [options]="[{ label: 'Active', value: 'active' }, { label: 'Deleted', value: 'deleted' }, { label: 'All', value: 'all' }]"
+                [ngModel]="getFilterValue(field.key)"
+                (onChange)="onFieldChange(field.key, $event.value ?? $event)"
+                optionLabel="label"
+                optionValue="value"
+                [placeholder]="field.placeholder ?? 'All'"
+                [showClear]="true"
                 styleClass="filter-select" />
             }
             @case ('text') {

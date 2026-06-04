@@ -1,5 +1,6 @@
-import { inject, signal, computed, resource } from '@angular/core';
+import { inject, signal, computed, resource, effect, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
 import {
   FilterField,
   FilterCriteria,
@@ -14,6 +15,7 @@ export interface CrudListService<TEntity> {
 
 export abstract class CrudListBase<TEntity> {
   protected router = inject(Router);
+  private platformId = inject(PLATFORM_ID);
 
   abstract get service(): CrudListService<TEntity>;
   abstract get entityName(): string;
@@ -48,13 +50,38 @@ export abstract class CrudListBase<TEntity> {
     loader: () => this.service.getAll(this.queryParams()),
   });
 
-  readonly items = computed(() =>
-    this.extractItems(this.dataResource.value())
-  );
-  readonly total = computed(() =>
-    this.extractTotal(this.dataResource.value())
-  );
+  // Guard against ResourceValueError when resource is in error state (SSR hydration)
+  readonly items = computed(() => {
+    if (this.dataResource.status() === 'error') return [];
+    return this.extractItems(this.dataResource.value());
+  });
+  readonly total = computed(() => {
+    if (this.dataResource.status() === 'error') return 0;
+    return this.extractTotal(this.dataResource.value());
+  });
   readonly isLoading = computed(() => this.dataResource.isLoading());
+  readonly hasError = computed(() => this.dataResource.status() === 'error');
+  readonly errorMessage = computed(() => {
+    if (this.dataResource.status() !== 'error') return null;
+    const err = this.dataResource.error() as any;
+    if (err?.status === 401) return 'Session expired. Please log in again.';
+    return 'Failed to load data. Please try again.';
+  });
+
+  constructor() {
+    // Auto-reload once in the browser if the resource failed during SSR hydration
+    let hasAutoReloaded = false;
+    effect(() => {
+      if (
+        isPlatformBrowser(this.platformId) &&
+        this.dataResource.status() === 'error' &&
+        !hasAutoReloaded
+      ) {
+        hasAutoReloaded = true;
+        this.dataResource.reload();
+      }
+    });
+  }
 
   onFiltersChange(criteria: FilterCriteria): void {
     this.filterParams.set({ ...criteria });

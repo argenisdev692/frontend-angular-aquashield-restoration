@@ -20,7 +20,7 @@ export interface FilterOption {
 export interface FilterField {
   key: string;
   label: string;
-  type: 'select' | 'date-range' | 'text';
+  type: 'select' | 'date-range' | 'text' | 'trash';
   options?: FilterOption[];
   placeholder?: string;
 }

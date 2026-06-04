@@ -174,65 +174,47 @@
   font-family: var(--font-sans);
   font-size: var(--text-sm);
   padding: 0 var(--space-3);
+  transition: all var(--transition);
+  cursor: pointer;
 }
 :host ::ng-deep .filter-select.p-select:not(.p-disabled):hover,
 :host ::ng-deep .filter-datepicker .p-inputtext:hover {
   border-color: var(--input-border-hover);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-primary) 12%, transparent);
 }
 :host ::ng-deep .filter-select.p-select.p-focus,
 :host ::ng-deep .filter-datepicker .p-inputtext:focus {
   border-color: var(--input-border-focus);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 14%, transparent);
 }
+:host ::ng-deep .filter-select.p-select.p-focus:hover {
+  border-color: var(--input-border-focus);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--accent-primary) 14%, transparent),
+    0 0 12px color-mix(in srgb, var(--accent-primary) 20%, transparent);
+}
 :host ::ng-deep .filter-select .p-select-label {
   color: var(--text-primary);
   padding: 0;
   line-height: var(--input-height);
+  font-weight: var(--font-medium);
 }
 :host ::ng-deep .filter-select .p-select-label.p-placeholder { color: var(--text-muted); }
 :host ::ng-deep .filter-select .p-select-trigger {
   color: var(--text-muted);
   width: 2rem;
+  transition: color var(--transition), transform var(--transition);
 }
-:host ::ng-deep .filter-select .p-select-trigger-icon {
-  width: 12px;
-  height: 12px;
-}
-
-/* Select dropdown panel */
-:host ::ng-deep .filter-select .p-select-panel {
-  background: var(--bg-card);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-md);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-}
-:host ::ng-deep .filter-select .p-select-header {
-  background: transparent;
-  border-bottom: 1px solid var(--border-subtle);
-  padding: var(--space-2) var(--space-3);
-}
-:host ::ng-deep .filter-select .p-select-items {
-  padding: var(--space-1) 0;
-}
-:host ::ng-deep .filter-select .p-select-item {
-  color: var(--text-primary);
-  font-size: var(--text-sm);
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-sm);
-  margin: 0 var(--space-1);
-  transition: background var(--transition);
-}
-:host ::ng-deep .filter-select .p-select-item:hover {
-  background: var(--bg-hover);
-}
-:host ::ng-deep .filter-select .p-select-item.p-highlight {
-  background: color-mix(in srgb, var(--accent-primary) 15%, transparent);
+:host ::ng-deep .filter-select.p-select:hover .p-select-trigger {
   color: var(--accent-primary);
 }
-:host ::ng-deep .filter-select .p-select-empty-message {
-  color: var(--text-muted);
-  padding: var(--space-3);
-  font-size: var(--text-sm);
+:host ::ng-deep .filter-select.p-select.p-focus .p-select-trigger {
+  color: var(--accent-primary);
+  transform: rotate(180deg);
+}
+:host ::ng-deep .filter-select .p-select-trigger-icon {
+  width: 14px;
+  height: 14px;
 }
 
 /* Datepicker panel */

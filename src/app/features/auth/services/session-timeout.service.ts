@@ -243,7 +243,7 @@ export class SessionTimeoutService {
     if (currentUrl !== '/login') {
       localStorage.setItem('intended_url', currentUrl);
     }
-    await this.authService.logout();
+    await this.authService.logout(currentUrl !== '/login' ? currentUrl : undefined);
   }
 
   resetTimer(): void {
