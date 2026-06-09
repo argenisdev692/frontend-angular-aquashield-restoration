@@ -19,6 +19,8 @@ Create a feature module for [module-name] from API
 2. **Analyze the service methods**:
    - List all available methods in the service
    - Identify CRUD methods: getAll/find-all, getById/find-one, create, update, delete/remove
+   - Identify **bulk** methods: bulkDelete (`*ControllerBulkDelete`), bulkRestore (`*ControllerBulkRestore`) — take a `BulkIdsDto` (`{ ids: string[] }`)
+   - Identify soft-delete methods: restore (`*ControllerRestore`), findTrash
    - Identify input parameters and return types
    - Note the method names and their purposes
 
@@ -94,6 +96,22 @@ export class UsersFeatureService {
   delete(id: string) {
     return this.usersService.usersControllerRemove({ id });
   }
+
+  // Soft-delete restore (if the API exposes it)
+  restore(id: string) {
+    return this.usersService.usersControllerRestore({ id });
+  }
+
+  // Bulk operations — REQUIRED whenever the API exposes them.
+  // Both take BulkIdsDto = { ids: string[] }. CrudListBase wires the
+  // checkbox selection UI automatically when these methods exist.
+  bulkDelete(dto: BulkIdsDto) {
+    return this.usersService.usersControllerBulkDelete({ body: dto });
+  }
+
+  bulkRestore(dto: BulkIdsDto) {
+    return this.usersService.usersControllerBulkRestore({ body: dto });
+  }
 }
 
 // list component
@@ -150,6 +168,62 @@ export class UsersListComponent {
   }
 }
 ```
+
+## Bulk Operations & Row Selection (REQUIRED for soft-delete CRUDs)
+
+List components extend `CrudListBase<TEntity>` (`src/app/shared/crud-list-base.ts`), which provides the **single source of truth** for selection + bulk actions. Do NOT reimplement selection per-feature.
+
+### What the base provides (no per-feature code needed)
+- `selectedIds` signal + `isSelected(id)`, `toggleSelect(id)`, `toggleSelectAll()`, `clearSelection()`
+- `selectedCount()`, `hasSelection()`, `allSelected()`, `someSelected()` (computed)
+- `onBulkDelete()` / `onBulkRestore()` — call `service.bulkDelete/bulkRestore({ ids })`, then clear + reload
+- `supportsBulk` / `supportsBulkDelete` / `supportsBulkRestore` getters — `true` only when the feature service exposes the matching method, so the checkbox column and bulk bar **auto-hide** for read-only resources (e.g. activity-logs)
+- `hasSelectedActive()` / `hasSelectedTrashed()` — context-aware gating so "Delete selected" only shows when active rows are selected and "Restore selected" only shows when trashed rows are selected; `onBulkDelete`/`onBulkRestore` act on only the relevant subset
+- Selection is cleared automatically on filter and page changes
+
+### Wiring requirement
+1. **Feature service** must expose `bulkDelete(dto: BulkIdsDto)` / `bulkRestore(dto: BulkIdsDto)` (see service example above). The base's `CrudListService` interface declares them optional.
+2. **List template** must render the selection column + bulk bar, gated on `supportsBulk`:
+
+```html
+<!-- Bulk action bar (above the table card) -->
+@if (supportsBulk && hasSelection()) {
+  <div class="bulk-actions-bar">
+    <span class="bulk-count">{{ selectedCount() }} selected</span>
+    <div class="bulk-actions">
+      @if (supportsBulkDelete && hasSelectedActive()) {
+        <button class="btn-bulk btn-bulk-delete" type="button" (click)="onBulkDelete()">…Delete selected</button>
+      }
+      @if (supportsBulkRestore && hasSelectedTrashed()) {
+        <button class="btn-bulk btn-bulk-restore" type="button" (click)="onBulkRestore()">…Restore selected</button>
+      }
+      <button class="btn-bulk btn-bulk-clear" type="button" (click)="clearSelection()">Clear</button>
+    </div>
+  </div>
+}
+
+<!-- Header checkbox -->
+@if (supportsBulk) {
+  <th class="select-col">
+    <input type="checkbox" class="crud-checkbox"
+      [checked]="allSelected()" [indeterminate]="someSelected()"
+      (change)="toggleSelectAll()" aria-label="Select all" />
+  </th>
+}
+
+<!-- Row checkbox -->
+@if (supportsBulk) {
+  <td class="select-col">
+    <input type="checkbox" class="crud-checkbox"
+      [checked]="isSelected(row.id)" (change)="toggleSelect(row.id)"
+      [attr.aria-label]="'Select ' + row.name" />
+  </td>
+}
+```
+
+3. **Empty-state colspan** must account for the selection column:
+   `[attr.colspan]="tableColumns.length + (supportsBulk ? 2 : 1)"`
+4. Styling uses the shared `.crud-checkbox`, `.select-col`, `.bulk-actions-bar`, `.btn-bulk*` tokens in `styles.css` — never hardcode checkbox styling.
 
 ## Best Practices Applied
 - Uses generated API services from ng-openapi-gen

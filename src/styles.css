@@ -1,6 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import 'tailwindcss';
+/* Scope Tailwind's automatic content detection to src/ (this file's directory).
+   Without this, Tailwind v4 scans the whole project — including .claude/.devin
+   markdown docs that contain "[file:line]", which it would parse as an arbitrary
+   utility and emit an invalid `file: line;` rule. */
+@import 'tailwindcss' source('./');
 
 /* PrimeNG Icons */
 @import 'primeicons/primeicons.css';
@@ -22,6 +26,9 @@
   --bg-card: var(--bg-elevated);
   --bg-hover: var(--bg-overlay);
   --bg-subtle: color-mix(in srgb, var(--bg-elevated) 70%, var(--bg-base));
+
+  /* Modal / drawer backdrop dim (kept dark in both themes so content reads as "behind") */
+  --overlay-mask: rgba(3, 8, 18, 0.62);
 
   /* Brand Colors (drive the mesh + gradients) */
   --blue-500: #0085C7;
@@ -120,24 +127,28 @@
   --glow-warning: 0 0 20px color-mix(in srgb, var(--accent-warning) 20%, transparent);
 }
 
-/* Light Mode Override */
+/* Light Mode Override — neutral gray/white (no blue tint): light-gray app
+   surface with pure-white elevated cards, neutral slate text and borders. */
 [data-theme="light"] {
-  --bg-void: #F2F6FA;
-  --bg-base: #FFFFFF;
-  --bg-surface: #EEF3F8;
-  --bg-elevated: #EEF3F8;
-  --bg-overlay: #DDE6EF;
+  --bg-void: #EDEEF1;
+  --bg-base: #F6F7F9;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #FFFFFF;
+  --bg-overlay: #F1F2F4;
   --bg-app: var(--bg-base);
   --bg-card: var(--bg-elevated);
-  --bg-hover: #DDE6EF;
+  --bg-hover: #ECEEF1;
   --bg-subtle: color-mix(in srgb, var(--bg-elevated) 72%, var(--bg-base));
-  --text-primary: #0C2340;
-  --text-secondary: #44566B;
-  --text-muted: #6B7A8D;
-  --text-disabled: #9AA7B5;
-  --border-subtle: rgba(12, 35, 64, 0.06);
-  --border-default: rgba(12, 35, 64, 0.12);
-  --border-strong: rgba(12, 35, 64, 0.22);
+  --text-primary: #1A1D23;
+  --text-secondary: #4B5563;
+  --text-muted: #6B7280;
+  --text-disabled: #9CA3AF;
+  --border-subtle: rgba(17, 24, 39, 0.05);
+  --border-default: rgba(17, 24, 39, 0.10);
+  --border-strong: rgba(17, 24, 39, 0.16);
+
+  /* Slightly softer dim over a light page */
+  --overlay-mask: rgba(17, 24, 39, 0.42);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -241,6 +252,18 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
   background-color: var(--accent-secondary);
+}
+
+/* ═══════════════════════════════════════════════════════
+   DRAWER / MODAL MASK (backdrop dim)
+   Rendered at body level, so it must live in global styles.
+   `modal=true` on <p-drawer> enables this overlay. This rule is
+   unlayered, so it wins over PrimeNG's @layer primeng default mask.
+═══════════════════════════════════════════════════════ */
+.p-drawer-mask {
+  background: var(--overlay-mask);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -637,6 +660,149 @@ html {
   z-index: 1;
 }
 
+/* ── Selection Column (bulk operations) ── */
+.select-col {
+  width: 44px;
+  text-align: center !important;
+  white-space: nowrap;
+}
+
+.crud-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--bg-elevated) 60%, transparent);
+  cursor: pointer;
+  position: relative;
+  vertical-align: middle;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.crud-checkbox:hover {
+  border-color: var(--accent-primary);
+}
+
+.crud-checkbox:checked,
+.crud-checkbox:indeterminate {
+  background: var(--grad-primary);
+  border-color: var(--accent-primary);
+}
+
+.crud-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 5px;
+  height: 10px;
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.crud-checkbox:indeterminate::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 7px;
+  width: 10px;
+  height: 2px;
+  background: #ffffff;
+  border-radius: 1px;
+}
+
+.crud-checkbox:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+.crud-table.p-datatable .p-datatable-tbody > tr.row-selected {
+  background: color-mix(in srgb, var(--accent-primary) 12%, transparent);
+}
+
+/* ── Bulk Actions Bar ── */
+.bulk-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+  background: color-mix(in srgb, var(--accent-primary) 10%, var(--bg-elevated));
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+}
+
+.bulk-count {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+.bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.btn-bulk {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background: color-mix(in srgb, var(--bg-elevated) 60%, transparent);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btn-bulk svg {
+  width: 16px;
+  height: 16px;
+}
+
+.btn-bulk:hover {
+  transform: translateY(-1px);
+  border-color: currentColor;
+}
+
+.btn-bulk-delete {
+  color: var(--accent-error);
+}
+
+.btn-bulk-delete:hover {
+  background: color-mix(in srgb, var(--accent-error) 12%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent-error) 25%, transparent);
+}
+
+.btn-bulk-restore {
+  color: var(--accent-success);
+}
+
+.btn-bulk-restore:hover {
+  background: color-mix(in srgb, var(--accent-success) 12%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent-success) 25%, transparent);
+}
+
+.btn-bulk-clear {
+  color: var(--text-muted);
+}
+
+.btn-bulk-clear:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
 /* ── Empty State ── */
 .crud-empty-state {
   display: flex;
@@ -786,10 +952,12 @@ html {
 }
 
 /* ═══════════════════════════════════════════════════════
-   SELECT DROPDOWN PANEL (global — overlay renders in body)
+   SELECT DROPDOWN OVERLAY (global — overlay renders in body)
+   PrimeNG v21 classes: .p-select-overlay / .p-select-list / .p-select-option
+   (the old .p-select-panel/.p-select-item/.p-highlight names no longer exist)
    ═══════════════════════════════════════════════════════ */
 
-.p-select-panel {
+.p-select-overlay {
   background: var(--bg-card);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
@@ -797,6 +965,7 @@ html {
     0 8px 32px rgba(0, 0, 0, 0.35),
     0 0 0 1px color-mix(in srgb, var(--accent-primary) 8%, transparent);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   overflow: hidden;
   animation: dropdown-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -806,44 +975,325 @@ html {
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.p-select-panel .p-select-header {
+.p-select-overlay .p-select-header {
   background: transparent;
   border-bottom: 1px solid var(--border-subtle);
   padding: var(--space-2) var(--space-3);
 }
 
-.p-select-panel .p-select-items {
-  padding: var(--space-3) 0;
+.p-select-overlay .p-select-list {
+  padding: var(--space-2) 0;
 }
 
-.p-select-panel .p-select-item {
+.p-select-overlay .p-select-option {
   color: var(--text-primary);
   font-size: var(--text-sm);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
-  margin: 0 var(--space-3);
+  margin: 0 var(--space-2);
   transition: all var(--transition);
   cursor: pointer;
 }
 
-.p-select-panel .p-select-item:hover {
+.p-select-overlay .p-select-option:not(.p-select-option-selected):hover,
+.p-select-overlay .p-select-option.p-focus {
   background: var(--bg-hover);
   color: var(--text-primary);
-  transform: translateX(3px);
 }
 
-.p-select-panel .p-select-item.p-highlight {
+.p-select-overlay .p-select-option.p-select-option-selected {
   background: color-mix(in srgb, var(--accent-primary) 15%, transparent);
   color: var(--accent-primary);
   font-weight: var(--font-medium);
   box-shadow: inset 3px 0 0 var(--accent-primary);
 }
 
-.p-select-panel .p-select-item.p-highlight:hover {
+.p-select-overlay .p-select-option.p-select-option-selected:hover {
   background: color-mix(in srgb, var(--accent-primary) 22%, transparent);
 }
 
-.p-select-panel .p-select-empty-message {
+.p-select-overlay .p-select-empty-message {
+  color: var(--text-muted);
+  padding: var(--space-4);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+/* ═══════════════════════════════════════════════════════
+   DATEPICKER PANEL (global — overlay renders in body via appendTo)
+   PrimeNG v21 classes: .p-datepicker-panel + .p-datepicker-day(-selected)
+   ═══════════════════════════════════════════════════════ */
+
+.p-datepicker-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    0 0 0 1px color-mix(in srgb, var(--accent-primary) 8%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--text-primary);
+  padding: var(--space-2);
+  animation: dropdown-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.p-datepicker-panel .p-datepicker-header {
+  background: transparent;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  padding: var(--space-2) var(--space-3);
+}
+
+.p-datepicker-panel .p-datepicker-title {
+  color: var(--text-primary);
+  font-weight: var(--font-semibold);
+}
+
+.p-datepicker-panel .p-datepicker-select-month,
+.p-datepicker-panel .p-datepicker-select-year {
+  color: var(--text-primary);
+  font-weight: var(--font-semibold);
+  background: transparent;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition);
+}
+
+.p-datepicker-panel .p-datepicker-select-month:hover,
+.p-datepicker-panel .p-datepicker-select-year:hover {
+  background: var(--bg-hover);
+  color: var(--accent-primary);
+}
+
+.p-datepicker-panel .p-datepicker-prev-button,
+.p-datepicker-panel .p-datepicker-next-button {
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition);
+}
+
+.p-datepicker-panel .p-datepicker-prev-button:hover,
+.p-datepicker-panel .p-datepicker-next-button:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.p-datepicker-panel .p-datepicker-weekday {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+}
+
+.p-datepicker-panel .p-datepicker-day {
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition), color var(--transition);
+}
+
+.p-datepicker-panel .p-datepicker-day:not(.p-datepicker-day-selected):hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.p-datepicker-panel .p-datepicker-other-month .p-datepicker-day {
+  color: var(--text-disabled);
+}
+
+.p-datepicker-panel .p-datepicker-today .p-datepicker-day {
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 45%, transparent);
+}
+
+.p-datepicker-panel .p-datepicker-day-selected {
+  background: var(--accent-primary);
+  color: #ffffff;
+}
+
+.p-datepicker-panel .p-datepicker-day-selected-range {
+  background: color-mix(in srgb, var(--accent-primary) 22%, transparent);
+  color: var(--text-primary);
+}
+
+.p-datepicker-panel .p-datepicker-month,
+.p-datepicker-panel .p-datepicker-year {
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition);
+}
+
+.p-datepicker-panel .p-datepicker-month:hover,
+.p-datepicker-panel .p-datepicker-year:hover {
+  background: var(--bg-hover);
+}
+
+.p-datepicker-panel .p-datepicker-month-selected,
+.p-datepicker-panel .p-datepicker-year-selected {
+  background: var(--accent-primary);
+  color: #ffffff;
+}
+
+.p-datepicker-panel .p-datepicker-buttonbar {
+  border-top: 1px solid var(--border-subtle);
+  padding: var(--space-2) var(--space-3);
+}
+
+.p-datepicker-panel .p-datepicker-buttonbar .p-button {
+  color: var(--accent-primary);
+  font-size: var(--text-sm);
+}
+
+/* ═══════════════════════════════════════════════════════
+   MULTISELECT (trigger global + overlay renders in body)
+   PrimeNG v21 classes: .p-multiselect / .p-multiselect-overlay
+   ═══════════════════════════════════════════════════════ */
+
+/* Trigger box */
+.p-multiselect {
+  width: 100%;
+  min-height: var(--input-height);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--input-radius);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.p-multiselect:not(.p-disabled):hover {
+  border-color: var(--input-border-hover);
+}
+
+.p-multiselect.p-focus,
+.p-multiselect:not(.p-disabled).p-focus {
+  border-color: var(--input-border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 14%, transparent);
+}
+
+.p-multiselect .p-multiselect-label {
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+.p-multiselect .p-multiselect-label.p-multiselect-label-empty {
+  color: var(--text-muted);
+}
+
+.p-multiselect .p-multiselect-dropdown,
+.p-multiselect .p-multiselect-clear-icon {
+  color: var(--text-muted);
+  transition: color var(--transition);
+}
+
+.p-multiselect:not(.p-disabled):hover .p-multiselect-dropdown {
+  color: var(--accent-primary);
+}
+
+/* Selected-value chips inside the trigger */
+.p-multiselect .p-multiselect-chip {
+  background: color-mix(in srgb, var(--accent-primary) 15%, transparent);
+  color: var(--accent-primary);
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+}
+
+.p-multiselect .p-multiselect-chip .p-chip-remove-icon {
+  color: var(--accent-primary);
+}
+
+/* Overlay panel */
+.p-multiselect-overlay {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    0 0 0 1px color-mix(in srgb, var(--accent-primary) 8%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden;
+  animation: dropdown-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.p-multiselect-overlay .p-multiselect-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: transparent;
+  border-bottom: 1px solid var(--border-subtle);
+  padding: var(--space-2) var(--space-3);
+}
+
+/* Let the filter take the remaining width, separated from the select-all checkbox */
+.p-multiselect-overlay .p-multiselect-filter-container {
+  flex: 1;
+  min-width: 0;
+}
+
+.p-multiselect-overlay .p-multiselect-filter {
+  width: 100%;
+  height: 32px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: var(--text-xs);
+  padding: 0 var(--space-2);
+}
+
+.p-multiselect-overlay .p-multiselect-filter:focus {
+  border-color: var(--input-border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 14%, transparent);
+  outline: none;
+}
+
+.p-multiselect-overlay .p-multiselect-list {
+  padding: var(--space-2) 0;
+}
+
+.p-multiselect-overlay .p-multiselect-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  margin: 0 var(--space-2);
+  transition: all var(--transition);
+  cursor: pointer;
+}
+
+.p-multiselect-overlay .p-multiselect-option:not(.p-multiselect-option-selected):hover,
+.p-multiselect-overlay .p-multiselect-option.p-focus {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.p-multiselect-overlay .p-multiselect-option.p-multiselect-option-selected {
+  background: color-mix(in srgb, var(--accent-primary) 12%, transparent);
+  color: var(--accent-primary);
+  font-weight: var(--font-medium);
+}
+
+/* Option checkboxes themed to brand */
+.p-multiselect-overlay .p-checkbox-box {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-sm);
+}
+
+.p-multiselect-overlay .p-checkbox-checked .p-checkbox-box {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+.p-multiselect-overlay .p-checkbox-checked .p-checkbox-icon {
+  color: #ffffff;
+}
+
+.p-multiselect-overlay .p-multiselect-empty-message {
   color: var(--text-muted);
   padding: var(--space-4);
   font-size: var(--text-sm);

@@ -457,6 +457,73 @@ pt: {
 }
 ```
 
+### Row Selection Checkbox & Bulk Actions Bar
+> Used by `CrudListBase` lists for bulk delete/restore. Token classes live in `styles.css` — attach them directly to native `<input type="checkbox">` and the bulk bar. NEVER hardcode checkbox colors.
+
+```css
+/* Custom checkbox driven by signal selection (no PrimeNG two-way binding) */
+.crud-checkbox {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--bg-elevated) 60%, transparent);
+  cursor: pointer;
+  position: relative;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.crud-checkbox:checked,
+.crud-checkbox:indeterminate {
+  background: var(--grad-primary);
+  border-color: var(--accent-primary);
+}
+/* :checked → ::after checkmark; :indeterminate → ::after dash (see styles.css) */
+
+.crud-checkbox:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+.select-col { width: 44px; text-align: center !important; }
+
+/* Selected-row highlight */
+.crud-table.p-datatable .p-datatable-tbody > tr.row-selected {
+  background: color-mix(in srgb, var(--accent-primary) 12%, transparent);
+}
+
+/* Bulk actions bar — shown only when hasSelection() */
+.bulk-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+  background: color-mix(in srgb, var(--accent-primary) 10%, var(--bg-elevated));
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+}
+
+.btn-bulk {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background: color-mix(in srgb, var(--bg-elevated) 60%, transparent);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btn-bulk-delete  { color: var(--accent-error); }
+.btn-bulk-restore { color: var(--accent-success); }
+.btn-bulk-clear   { color: var(--text-muted); }
+```
+
 ### Form Submit Button with Loading State
 ```css
 .btn-submit {

@@ -27,6 +27,16 @@
 - Implement rate limiting for login attempts
 - NEVER store JWT in localStorage
 
+## CRUD Lists & Bulk Operations
+- All list components MUST extend `CrudListBase<TEntity>` (`src/app/shared/crud-list-base.ts`) — it is the single source of truth for pagination, filtering, soft-delete and selection
+- NEVER reimplement row selection or bulk logic per feature — use the base's `selectedIds`, `toggleSelect`, `toggleSelectAll`, `clearSelection`, `isSelected`, `selectedCount`, `hasSelection`, `allSelected`, `someSelected`, `onBulkDelete`, `onBulkRestore`
+- When the backend exposes bulk endpoints, the feature service MUST expose `bulkDelete(dto: BulkIdsDto)` and/or `bulkRestore(dto: BulkIdsDto)` (`BulkIdsDto = { ids: string[] }`)
+- Every soft-delete CRUD list MUST render a select-all header checkbox, per-row checkboxes, and a bulk-actions bar — all gated on the base's `supportsBulk` getter so read-only resources (e.g. activity-logs) auto-hide them
+- Bulk actions MUST be **context-aware** (UX best practice): gate "Delete selected" on `hasSelectedActive()` and "Restore selected" on `hasSelectedTrashed()` so each button only appears when the selection actually contains rows it can act on. `onBulkDelete`/`onBulkRestore` operate only on the relevant (active / trashed) subset of the selection
+- Bulk delete MUST confirm before acting; both bulk actions clear the selection and reload the resource on success (handled by the base)
+- Empty-state colspan MUST be `tableColumns.length + (supportsBulk ? 2 : 1)` to account for the selection column
+- Checkbox / bulk-bar styling MUST use the shared `.crud-checkbox`, `.select-col`, `.bulk-actions-bar`, `.btn-bulk*` token classes — never hardcode
+
 ## Styling
 - Use PrimeNG v21 styled theming (`@primeuix/themes` + `cssLayer`); attach `styles.css` classes via the Pass Through API
 - Map styles.css tokens to PrimeNG components via `pt` configuration

@@ -13,8 +13,8 @@ export class SessionTimeoutService {
   private destroyRef = inject(DestroyRef);
 
   // Configuration
-  private readonly TIMEOUT_MINUTES = 1; // TEMP (testing): 1 minute of inactivity — restore to 15 before release
-  private readonly WARNING_SECONDS = 20; // Show warning 20s before timeout (i.e. at 40s of inactivity)
+  private readonly TIMEOUT_MINUTES = 15; // 15 minutes of inactivity
+  private readonly WARNING_SECONDS = 60; // Show warning 1 minute before timeout
   private readonly TIMEOUT_MS = this.TIMEOUT_MINUTES * 60 * 1000;
   private readonly WARNING_MS = this.WARNING_SECONDS * 1000;
   private readonly REFRESH_BUFFER_MS = 5 * 60 * 1000; // Refresh if token expires within 5 min
