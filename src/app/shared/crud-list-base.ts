@@ -56,7 +56,12 @@ export abstract class CrudListBase<TEntity> {
   );
 
   readonly dataResource = resource({
-    loader: () => this.service.getAll(this.queryParams()),
+    // `params` is the reactive input — when page/limit/filters change the loader
+    // reruns. Reading signals inside `loader` is untracked, so it would only
+    // fire once (Angular: "if a params function isn't provided, the loader
+    // won't rerun unless the resource is reloaded").
+    params: () => this.queryParams(),
+    loader: ({ params }) => this.service.getAll(params),
   });
 
   // Guard against ResourceValueError when resource is in error state (SSR hydration)
