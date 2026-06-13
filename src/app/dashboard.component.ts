@@ -28,7 +28,7 @@ export class DashboardComponent implements OnInit {
 
   // Company data from public endpoint
   protected readonly companyData = signal<CompanyDataResponse | null>(null);
-  protected readonly companyName = computed(() => this.companyData()?.companyName ?? 'Aquashield Restoration LLC');
+  protected readonly companyName = computed(() => this.companyData()?.companyName ?? 'Project');
   protected readonly companyTaxId = computed(() => this.companyData()?.taxId ?? '');
 
   protected readonly headerSubtitle = computed(() => {

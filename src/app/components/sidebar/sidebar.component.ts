@@ -8,6 +8,8 @@ import { DrawerModule } from 'primeng/drawer';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { AuthFeatureService } from '../../features/auth/services/auth.service';
 import { ThemeService } from '../../features/auth/services/theme.service';
+import { CompanyDataService } from '../../api/services/company-data.service';
+import { CompanyDataResponse } from '../../api/models/company-data-response';
 
 interface NavItem {
   icon: string;
@@ -26,11 +28,26 @@ export class SidebarComponent {
   private router = inject(Router);
   private authService = inject(AuthFeatureService);
   private themeService = inject(ThemeService);
+  private companyDataService = inject(CompanyDataService);
 
   // Two-way bound visibility so the parent can toggle the drawer menu.
   visible = model(false);
 
-  companyName = input('Aquashield Restoration LLC');
+  companyData = signal<CompanyDataResponse | null>(null);
+  companyName = computed(() => this.companyData()?.companyName ?? 'Project');
+
+  constructor() {
+    this.loadCompanyData();
+  }
+
+  private async loadCompanyData(): Promise<void> {
+    try {
+      const data = await this.companyDataService.companyDataControllerFindPublic();
+      this.companyData.set(data);
+    } catch (error) {
+      console.error('Failed to load company data:', error);
+    }
+  }
 
   protected readonly user = this.authService.currentUser;
 

@@ -161,6 +161,7 @@ export class LoginFormComponent implements OnDestroy {
 
   companyName = computed(() => this.companyData()?.companyName ?? 'AquaShield Restoration CRM');
   companyTaxId = computed(() => this.companyData()?.taxId ?? '');
+  currentYear = computed(() => new Date().getFullYear());
 
   // ── Helpers ──
   isValidEmail(email: string): boolean {

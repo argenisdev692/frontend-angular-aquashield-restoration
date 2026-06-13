@@ -34,7 +34,7 @@
     transparent 0deg,
     transparent 315deg,
     var(--accent-primary) 348deg,
-    #9DEBFF 360deg
+    var(--accent-secondary) 360deg
   );
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
