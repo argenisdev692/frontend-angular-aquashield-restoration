@@ -4,10 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 
 import { UserPermissionsFeatureService } from '../services/user-permissions-feature.service';
+import { NotificationService } from '../../../shared/notifications/notification.service';
 import { UsersFeatureService } from '../services/users-feature.service';
 import { PermissionResponseDto } from '../../../api/models/permission-response-dto';
 import { UserPermissionResponseDto } from '../../../api/models/user-permission-response-dto';
@@ -27,13 +26,10 @@ interface PermissionModuleGroup {
     FormsModule,
     CheckboxModule,
     ButtonModule,
-    ToastModule,
     PageHeaderComponent,
     SidebarComponent,
   ],
-  providers: [MessageService],
   template: `
-    <p-toast />
     <app-sidebar [visible]="drawerVisible()" (visibleChange)="drawerVisible.set($event)"></app-sidebar>
 
     <div class="permissions-page">
@@ -244,7 +240,7 @@ export class UserPermissionsComponent {
   private usersService = inject(UsersFeatureService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private messageService = inject(MessageService);
+  private notify = inject(NotificationService);
 
   readonly drawerVisible = signal(false);
   readonly userId = signal<string>(this.route.snapshot.params['id']);
@@ -312,26 +308,14 @@ export class UserPermissionsComponent {
     try {
       if (checked) {
         await this.service.assignPermission(userId, perm.id);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Permission Assigned',
-          detail: `${perm.name} has been assigned`,
-        });
+        this.notify.success('Permission assigned', `${perm.name} has been assigned`);
       } else {
         await this.service.removePermission(userId, perm.id);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Permission Removed',
-          detail: `${perm.name} has been removed`,
-        });
+        this.notify.success('Permission removed', `${perm.name} has been removed`);
       }
       this.userPermissionsResource.reload();
-    } catch {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: `Failed to ${checked ? 'assign' : 'remove'} ${perm.name}`,
-      });
+    } catch (e) {
+      this.notify.error(e, `Failed to ${checked ? 'assign' : 'remove'} ${perm.name}`);
     } finally {
       this.savingId.set(null);
     }

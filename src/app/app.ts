@@ -2,6 +2,7 @@ import { Component, AfterViewInit, OnInit, ElementRef, viewChild, inject, PLATFO
 import { RouterOutlet } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { GradientBackgroundComponent } from './components/gradient-background/gradient-background.component';
+import { NotificationOutletComponent } from './shared/notifications/notification-outlet.component';
 import { SessionTimeoutService } from './features/auth/services/session-timeout.service';
 import { AuthFeatureService } from './features/auth/services/auth.service';
 import { ThemeService } from './features/auth/services/theme.service';
@@ -9,7 +10,7 @@ import { CompanyDataService } from './api/services/company-data.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, GradientBackgroundComponent],
+  imports: [RouterOutlet, GradientBackgroundComponent, NotificationOutletComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

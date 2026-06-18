@@ -5,6 +5,8 @@ import {
   FilterField,
   FilterCriteria,
 } from '../components/advanced-filter/advanced-filter.component';
+import { ConfirmService } from './notifications/confirm.service';
+import { NotificationService } from './notifications/notification.service';
 
 export interface BulkIdsPayload {
   ids: string[];
@@ -22,6 +24,14 @@ export interface CrudListService<TEntity> {
 export abstract class CrudListBase<TEntity> {
   protected router = inject(Router);
   private platformId = inject(PLATFORM_ID);
+  protected confirm = inject(ConfirmService);
+  protected notify = inject(NotificationService);
+
+  /** "user" -> "User" for modal titles / toast summaries. */
+  private get entityLabel(): string {
+    const name = this.entityName;
+    return name.charAt(0).toUpperCase() + name.slice(1);
+  }
 
   abstract get service(): CrudListService<TEntity>;
   abstract get entityName(): string;
@@ -214,26 +224,44 @@ export abstract class CrudListBase<TEntity> {
   onBulkDelete(): void {
     // Only act on active rows — deleting already-trashed rows is a no-op.
     const ids = this.selectedActiveIds();
-    if (ids.length === 0 || !this.service.bulkDelete) return;
-    if (
-      !confirm(
-        `Are you sure you want to delete ${ids.length} selected ${this.entityName}(s)?`
-      )
-    )
-      return;
-    this.service.bulkDelete({ ids }).then(() => {
-      this.clearSelection();
-      this.dataResource.reload();
+    const bulkDelete = this.service.bulkDelete;
+    if (ids.length === 0 || !bulkDelete) return;
+    const noun = ids.length === 1 ? this.entityName : `${this.entityName}s`;
+    this.confirm.confirm({
+      variant: 'danger',
+      title: `Delete ${ids.length} ${noun}`,
+      message: `Are you sure you want to delete the ${ids.length} selected ${noun}? You can restore ${
+        ids.length === 1 ? 'it' : 'them'
+      } later.`,
+      confirmLabel: 'Delete selected',
+      busyLabel: 'Deleting…',
+      successMessage: `${ids.length} ${noun} deleted`,
+      action: async () => {
+        await bulkDelete.call(this.service, { ids });
+        this.clearSelection();
+        this.dataResource.reload();
+      },
     });
   }
 
   onBulkRestore(): void {
     // Only act on trashed rows — restoring active rows is a no-op.
     const ids = this.selectedTrashedIds();
-    if (ids.length === 0 || !this.service.bulkRestore) return;
-    this.service.bulkRestore({ ids }).then(() => {
-      this.clearSelection();
-      this.dataResource.reload();
+    const bulkRestore = this.service.bulkRestore;
+    if (ids.length === 0 || !bulkRestore) return;
+    const noun = ids.length === 1 ? this.entityName : `${this.entityName}s`;
+    this.confirm.confirm({
+      variant: 'success',
+      title: `Restore ${ids.length} ${noun}`,
+      message: `Restore the ${ids.length} selected ${noun}?`,
+      confirmLabel: 'Restore selected',
+      busyLabel: 'Restoring…',
+      successMessage: `${ids.length} ${noun} restored`,
+      action: async () => {
+        await bulkRestore.call(this.service, { ids });
+        this.clearSelection();
+        this.dataResource.reload();
+      },
     });
   }
 
@@ -250,14 +278,35 @@ export abstract class CrudListBase<TEntity> {
   }
 
   onDelete(id: string): void {
-    if (!confirm(`Are you sure you want to delete this ${this.entityName}?`))
-      return;
-    this.service.delete(id).then(() => this.dataResource.reload());
+    this.confirm.confirm({
+      variant: 'danger',
+      title: `Delete ${this.entityName}`,
+      message: `Are you sure you want to delete this ${this.entityName}? You can restore it later.`,
+      confirmLabel: 'Delete',
+      busyLabel: 'Deleting…',
+      successMessage: `${this.entityLabel} deleted`,
+      action: async () => {
+        await this.service.delete(id);
+        this.dataResource.reload();
+      },
+    });
   }
 
   onRestore(id: string): void {
-    if (!this.service.restore) return;
-    this.service.restore(id).then(() => this.dataResource.reload());
+    const restore = this.service.restore;
+    if (!restore) return;
+    this.confirm.confirm({
+      variant: 'success',
+      title: `Restore ${this.entityName}`,
+      message: `Restore this ${this.entityName}?`,
+      confirmLabel: 'Restore',
+      busyLabel: 'Restoring…',
+      successMessage: `${this.entityLabel} restored`,
+      action: async () => {
+        await restore.call(this.service, id);
+        this.dataResource.reload();
+      },
+    });
   }
 
   isTrashed(item: any): boolean {

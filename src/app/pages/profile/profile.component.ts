@@ -7,10 +7,10 @@ import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PanelModule } from 'primeng/panel';
-import { ToastModule } from 'primeng/toast';
 import { DialogModule } from 'primeng/dialog';
-import { MessageService } from 'primeng/api';
 import { AuthFeatureService } from '../../features/auth/services/auth.service';
+import { NotificationService } from '../../shared/notifications/notification.service';
+import { ConfirmService } from '../../shared/notifications/confirm.service';
 import {
   AuthSessionsFeatureService,
   SessionView,
@@ -35,7 +35,6 @@ import { FloatingMenuButtonComponent } from '../../components/floating-menu-butt
     ButtonModule,
     InputTextModule,
     PanelModule,
-    ToastModule,
     SidebarComponent,
     PageHeaderComponent,
     FormSubmitButtonComponent,
@@ -43,7 +42,6 @@ import { FloatingMenuButtonComponent } from '../../components/floating-menu-butt
     FloatingMenuButtonComponent,
     DialogModule
   ],
-  providers: [MessageService],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
 })
@@ -54,7 +52,8 @@ export class ProfileComponent implements OnInit {
   private http = inject(HttpClient);
   private config = inject(ApiConfiguration);
   protected router = inject(Router);
-  private messageService = inject(MessageService);
+  private notify = inject(NotificationService);
+  private confirm = inject(ConfirmService);
 
   protected readonly drawerVisible = signal(false);
   protected readonly loading = signal(true);
@@ -74,7 +73,6 @@ export class ProfileComponent implements OnInit {
 
   protected readonly backupCodesVisible = signal(false);
   protected readonly backupCodes = signal<string[]>([]);
-  protected readonly confirmingDisable = signal(false);
 
   // ── Active sessions & trusted devices ──
   protected readonly sessions = signal<SessionView[]>([]);
@@ -151,9 +149,9 @@ export class ProfileComponent implements OnInit {
       await this.generatedAuthService.authControllerUpdateMe({ body: this.editForm as UpdateProfileDto });
       await this.authFeatureService.fetchCurrentUser();
       this.isEditing.set(false);
-      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Profile updated successfully' });
-    } catch {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update profile' });
+      this.notify.success('Profile updated successfully');
+    } catch (e) {
+      this.notify.error(e, 'Failed to update profile');
     } finally {
       this.savingProfile.set(false);
     }
@@ -185,19 +183,19 @@ export class ProfileComponent implements OnInit {
       );
       await this.authFeatureService.fetchCurrentUser();
       this.cropperImageUrl.set(null);
-      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Profile photo updated' });
-    } catch {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to upload photo' });
+      this.notify.success('Profile photo updated');
+    } catch (e) {
+      this.notify.error(e, 'Failed to upload photo');
     }
   }
 
   async changePassword(): Promise<void> {
     if (this.passwordForm.newPassword !== this.passwordForm.confirmPassword) {
-      this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Passwords do not match' });
+      this.notify.warn('Passwords do not match');
       return;
     }
     if (!this.passwordForm.newPassword || this.passwordForm.newPassword.length < 8) {
-      this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Password must be at least 8 characters' });
+      this.notify.warn('Password must be at least 8 characters');
       return;
     }
 
@@ -214,9 +212,9 @@ export class ProfileComponent implements OnInit {
         })
       );
       this.passwordForm = { currentPassword: '', newPassword: '', confirmPassword: '' };
-      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Password changed successfully' });
-    } catch {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to change password' });
+      this.notify.success('Password changed successfully');
+    } catch (e) {
+      this.notify.error(e, 'Failed to change password');
     } finally {
       this.savingPassword.set(false);
     }
@@ -226,10 +224,10 @@ export class ProfileComponent implements OnInit {
     this.loggingOutAll.set(true);
     try {
       await this.generatedAuthService.authControllerLogoutAll();
-      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'All other sessions have been logged out' });
+      this.notify.success('All other sessions have been logged out');
       this.loadSessions();
-    } catch {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to logout other sessions' });
+    } catch (e) {
+      this.notify.error(e, 'Failed to logout other sessions');
     } finally {
       this.loggingOutAll.set(false);
     }
@@ -262,9 +260,9 @@ export class ProfileComponent implements OnInit {
     try {
       await this.sessionsService.revokeSession(id);
       this.sessions.update(list => list.filter(s => s.id !== id));
-      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Session revoked' });
-    } catch {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to revoke session' });
+      this.notify.success('Session revoked');
+    } catch (e) {
+      this.notify.error(e, 'Failed to revoke session');
     } finally {
       this.revokingId.set(null);
     }
@@ -275,9 +273,9 @@ export class ProfileComponent implements OnInit {
     try {
       await this.sessionsService.revokeTrustedDevice(id);
       this.trustedDevices.update(list => list.filter(d => d.id !== id));
-      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Device removed' });
-    } catch {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to remove device' });
+      this.notify.success('Device removed');
+    } catch (e) {
+      this.notify.error(e, 'Failed to remove device');
     } finally {
       this.revokingId.set(null);
     }
@@ -287,9 +285,9 @@ export class ProfileComponent implements OnInit {
     try {
       await this.sessionsService.revokeAllTrustedDevices();
       this.trustedDevices.set([]);
-      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'All trusted devices removed' });
-    } catch {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to remove trusted devices' });
+      this.notify.success('All trusted devices removed');
+    } catch (e) {
+      this.notify.error(e, 'Failed to remove trusted devices');
     }
   }
 
@@ -308,8 +306,8 @@ export class ProfileComponent implements OnInit {
         }>(joinApiUrl(this.config.rootUrl, '/api/v1/auth/two-factor/setup'), {})
       );
       this.totpSetupData.set(data);
-    } catch {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to start 2FA setup' });
+    } catch (e) {
+      this.notify.error(e, 'Failed to start 2FA setup');
       this.totpSetupVisible.set(false);
     } finally {
       this.totpSetupLoading.set(false);
@@ -319,7 +317,7 @@ export class ProfileComponent implements OnInit {
   async confirmTotpSetup(): Promise<void> {
     const code = this.totpCode().trim();
     if (!code || code.length < 6) {
-      this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Enter a valid 6-digit TOTP code' });
+      this.notify.warn('Enter a valid 6-digit TOTP code');
       return;
     }
 
@@ -330,32 +328,29 @@ export class ProfileComponent implements OnInit {
       this.totpCode.set('');
       this.totpSetupData.set(null);
       await this.authFeatureService.fetchCurrentUser();
-      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Two-factor authentication enabled successfully' });
-    } catch {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Invalid TOTP code. Please try again.' });
+      this.notify.success('Two-factor authentication enabled successfully');
+    } catch (e) {
+      this.notify.error(e, 'Invalid TOTP code. Please try again.');
     } finally {
       this.savingTotp.set(false);
     }
   }
 
-  async disableTotp(): Promise<void> {
-    if (!this.confirmingDisable()) {
-      this.confirmingDisable.set(true);
-      this.messageService.add({ severity: 'warn', summary: 'Confirm', detail: 'Click Disable 2FA again to confirm' });
-      return;
-    }
-
-    this.savingTotp.set(true);
-    try {
-      await this.http.post(joinApiUrl(this.config.rootUrl, '/api/v1/auth/two-factor/disable'), {}).toPromise();
-      this.confirmingDisable.set(false);
-      await this.authFeatureService.fetchCurrentUser();
-      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Two-factor authentication disabled' });
-    } catch {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to disable 2FA' });
-    } finally {
-      this.savingTotp.set(false);
-    }
+  disableTotp(): void {
+    this.confirm.confirm({
+      variant: 'danger',
+      title: 'Disable two-factor authentication',
+      message: 'Disabling 2FA lowers your account security. Are you sure you want to continue?',
+      confirmLabel: 'Disable 2FA',
+      busyLabel: 'Disabling…',
+      successMessage: 'Two-factor authentication disabled',
+      action: async () => {
+        await firstValueFrom(
+          this.http.post(joinApiUrl(this.config.rootUrl, '/api/v1/auth/two-factor/disable'), {})
+        );
+        await this.authFeatureService.fetchCurrentUser();
+      },
+    });
   }
 
   async regenerateBackupCodes(): Promise<void> {
@@ -365,9 +360,9 @@ export class ProfileComponent implements OnInit {
       );
       this.backupCodes.set(data.backupCodes);
       this.backupCodesVisible.set(true);
-      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Backup codes regenerated' });
-    } catch {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to regenerate backup codes' });
+      this.notify.success('Backup codes regenerated');
+    } catch (e) {
+      this.notify.error(e, 'Failed to regenerate backup codes');
     }
   }
 
@@ -375,6 +370,5 @@ export class ProfileComponent implements OnInit {
     this.totpSetupVisible.set(false);
     this.totpCode.set('');
     this.totpSetupData.set(null);
-    this.confirmingDisable.set(false);
   }
 }

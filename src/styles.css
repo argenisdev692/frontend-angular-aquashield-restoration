@@ -1426,3 +1426,240 @@ html {
   font-size: var(--text-sm);
   text-align: center;
 }
+
+/* ==========================================================================
+   GLOBAL NOTIFICATIONS — toast stack + confirm modal
+   Rendered by <app-notification-outlet>. Token-only (no hex).
+   ========================================================================== */
+
+/* ── Toast stack ───────────────────────────────────────────────────────── */
+.aq-toast-stack {
+  position: fixed;
+  top: var(--space-5);
+  right: var(--space-5);
+  z-index: 11000;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: min(380px, calc(100vw - var(--space-8)));
+  pointer-events: none;
+}
+
+.aq-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: color-mix(in srgb, var(--bg-elevated) 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-default);
+  border-left: 3px solid var(--accent-info);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 32px rgba(3, 8, 18, 0.45);
+  animation: aq-toast-in 0.25s ease;
+}
+
+.aq-toast--success { border-left-color: var(--accent-success); }
+.aq-toast--error   { border-left-color: var(--accent-error); }
+.aq-toast--warn    { border-left-color: var(--accent-warning); }
+.aq-toast--info    { border-left-color: var(--accent-info); }
+
+.aq-toast__icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  margin-top: 1px;
+}
+.aq-toast__icon svg { width: 20px; height: 20px; }
+.aq-toast--success .aq-toast__icon { color: var(--accent-success); }
+.aq-toast--error   .aq-toast__icon { color: var(--accent-error); }
+.aq-toast--warn    .aq-toast__icon { color: var(--accent-warning); }
+.aq-toast--info    .aq-toast__icon { color: var(--accent-info); }
+
+.aq-toast__body { flex: 1 1 auto; min-width: 0; }
+.aq-toast__summary {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+.aq-toast__detail {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  word-break: break-word;
+}
+
+.aq-toast__close {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: color var(--transition), background var(--transition);
+}
+.aq-toast__close svg { width: 14px; height: 14px; }
+.aq-toast__close:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+@keyframes aq-toast-in {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Confirm modal ─────────────────────────────────────────────────────── */
+.aq-confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: var(--overlay-mask);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  animation: aq-fade-in 0.18s ease;
+}
+
+.aq-confirm {
+  width: min(440px, 100%);
+  padding: var(--space-6);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 24px 60px rgba(3, 8, 18, 0.55);
+  text-align: center;
+  animation: aq-confirm-in 0.22s ease;
+}
+
+.aq-confirm__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto var(--space-4);
+  border-radius: 50%;
+}
+.aq-confirm__icon svg { width: 26px; height: 26px; }
+.aq-confirm__icon--danger {
+  color: var(--accent-error);
+  background: color-mix(in srgb, var(--accent-error) 14%, transparent);
+}
+.aq-confirm__icon--success {
+  color: var(--accent-success);
+  background: color-mix(in srgb, var(--accent-success) 14%, transparent);
+}
+.aq-confirm__icon--primary {
+  color: var(--accent-primary);
+  background: color-mix(in srgb, var(--accent-primary) 14%, transparent);
+}
+
+.aq-confirm__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+.aq-confirm__message {
+  margin: 0 0 var(--space-6);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.aq-confirm__actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: center;
+}
+
+.aq-confirm__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-width: 130px;
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.aq-confirm__btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.aq-confirm__btn--cancel {
+  background: transparent;
+  border-color: var(--border-default);
+  color: var(--text-secondary);
+}
+.aq-confirm__btn--cancel:hover:not(:disabled) {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.aq-confirm__btn--danger {
+  background: var(--accent-error);
+  color: #ffffff;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-error) 35%, transparent);
+}
+.aq-confirm__btn--danger:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--accent-error) 45%, transparent);
+}
+
+.aq-confirm__btn--success {
+  background: var(--accent-success);
+  color: #ffffff;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-success) 35%, transparent);
+}
+.aq-confirm__btn--success:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--accent-success) 45%, transparent);
+}
+
+.aq-confirm__btn--primary {
+  background: var(--grad-primary);
+  color: #ffffff;
+  border-color: var(--border-strong);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--accent-primary) 35%, transparent);
+}
+.aq-confirm__btn--primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--accent-primary) 45%, transparent);
+}
+
+.aq-confirm__spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: aq-spin 0.6s linear infinite;
+}
+
+@keyframes aq-spin { to { transform: rotate(360deg); } }
+@keyframes aq-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes aq-confirm-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aq-toast,
+  .aq-confirm-backdrop,
+  .aq-confirm { animation: none; }
+}

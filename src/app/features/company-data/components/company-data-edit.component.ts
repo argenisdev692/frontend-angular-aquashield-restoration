@@ -4,9 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PanelModule } from 'primeng/panel';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { SignaturePadComponent, NgSignaturePadOptions } from '@almothafar/angular-signature-pad';
+import { NotificationService } from '../../../shared/notifications/notification.service';
+import { ConfirmService } from '../../../shared/notifications/confirm.service';
 import { SidebarComponent } from '../../../components/sidebar/sidebar.component';
 import { PageHeaderComponent } from '../../../components/page-header/page-header.component';
 import { FormSubmitButtonComponent } from '../../../components/form-submit-button/form-submit-button.component';
@@ -23,16 +23,13 @@ import { CompanyDataResponse } from '../../../api/models/company-data-response';
     ButtonModule,
     InputTextModule,
     PanelModule,
-    ToastModule,
     SidebarComponent,
     PageHeaderComponent,
     FormSubmitButtonComponent,
     FloatingMenuButtonComponent,
     SignaturePadComponent
   ],
-  providers: [MessageService],
   template: `
-    <p-toast />
     <app-sidebar [visible]="drawerVisible()" (visibleChange)="drawerVisible.set($event)"></app-sidebar>
 
     <div class="company-data-page">
@@ -607,7 +604,8 @@ import { CompanyDataResponse } from '../../../api/models/company-data-response';
 export class CompanyDataEditComponent implements OnInit, OnDestroy {
   private featureService = inject(CompanyDataFeatureService);
   private mapsLoader = inject(GoogleMapsLoaderService);
-  private messageService = inject(MessageService);
+  private notify = inject(NotificationService);
+  private confirm = inject(ConfirmService);
 
   protected readonly Number = Number;
 
@@ -743,7 +741,7 @@ export class CompanyDataEditComponent implements OnInit, OnDestroy {
     if (!data?.id) return;
 
     if (!this.editForm.companyName || this.editForm.companyName.trim().length === 0) {
-      this.messageService.add({ severity: 'warn', summary: 'Validation', detail: 'Company name is required' });
+      this.notify.warn('Company name is required');
       return;
     }
 
@@ -753,9 +751,9 @@ export class CompanyDataEditComponent implements OnInit, OnDestroy {
       this.companyData.set(updated);
       this.isEditing.set(false);
       this.detachAutocomplete();
-      this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Company data updated successfully' });
-    } catch {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update company data' });
+      this.notify.success('Company data updated successfully');
+    } catch (e) {
+      this.notify.error(e, 'Failed to update company data');
     } finally {
       this.saving.set(false);
     }
@@ -771,7 +769,7 @@ export class CompanyDataEditComponent implements OnInit, OnDestroy {
     if (!pad || !data?.id) return;
 
     if (pad.isEmpty()) {
-      this.messageService.add({ severity: 'warn', summary: 'Validation', detail: 'Please draw a signature before saving' });
+      this.notify.warn('Please draw a signature before saving');
       return;
     }
 
@@ -783,27 +781,29 @@ export class CompanyDataEditComponent implements OnInit, OnDestroy {
       const updated = await this.featureService.uploadSignature(data.id, file);
       this.companyData.set(updated);
       this.isEditing.set(false);
-      this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Signature saved successfully' });
-    } catch {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to save signature' });
+      this.notify.success('Signature saved successfully');
+    } catch (e) {
+      this.notify.error(e, 'Failed to save signature');
     } finally {
       this.savingSignature.set(false);
     }
   }
 
-  async deleteSignature(): Promise<void> {
+  deleteSignature(): void {
     const data = this.companyData();
     if (!data?.id || !data.signaturePath) return;
 
-    this.savingSignature.set(true);
-    try {
-      const updated = await this.featureService.deleteSignature(data.id);
-      this.companyData.set(updated);
-      this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Signature deleted successfully' });
-    } catch {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete signature' });
-    } finally {
-      this.savingSignature.set(false);
-    }
+    this.confirm.confirm({
+      variant: 'danger',
+      title: 'Delete signature',
+      message: 'Are you sure you want to delete the company signature?',
+      confirmLabel: 'Delete',
+      busyLabel: 'Deleting…',
+      successMessage: 'Signature deleted successfully',
+      action: async () => {
+        const updated = await this.featureService.deleteSignature(data.id!);
+        this.companyData.set(updated);
+      },
+    });
   }
 }

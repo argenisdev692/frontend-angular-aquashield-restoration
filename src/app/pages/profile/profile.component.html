@@ -1,4 +1,3 @@
-<p-toast />
 <app-sidebar [visible]="drawerVisible()" (visibleChange)="drawerVisible.set($event)"></app-sidebar>
 
 <div class="profile-page">
@@ -197,11 +196,10 @@
                   [text]="true"
                   (onClick)="regenerateBackupCodes()" />
                 <p-button
-                  [label]="confirmingDisable() ? 'Confirm Disable' : 'Disable 2FA'"
+                  label="Disable 2FA"
                   icon="pi pi-lock-open"
                   severity="danger"
                   [text]="true"
-                  [loading]="savingTotp()"
                   (onClick)="disableTotp()" />
               </div>
             </div>
