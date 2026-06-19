@@ -4,9 +4,13 @@
   <app-page-header
     title="My Profile"
     subtitle="Manage your account and security settings"
-    (menuToggle)="drawerVisible.set(true)" />
+    (menuToggle)="drawerVisible.set(true)"
+  />
 
-  <app-floating-menu-button [drawerOpen]="drawerVisible()" (menuToggle)="drawerVisible.set(!drawerVisible())" />
+  <app-floating-menu-button
+    [drawerOpen]="drawerVisible()"
+    (menuToggle)="drawerVisible.set(!drawerVisible())"
+  />
 
   @if (loading()) {
     <div class="profile-loading">
@@ -24,10 +28,7 @@
       <div class="profile-card">
         <div class="profile-card-header">
           <h2 class="card-title">Profile Information</h2>
-          <button
-            class="btn-edit-profile"
-            [class.cancel-mode]="isEditing()"
-            (click)="toggleEdit()">
+          <button class="btn-edit-profile" [class.cancel-mode]="isEditing()" (click)="toggleEdit()">
             <i class="pi" [class.pi-times]="isEditing()" [class.pi-pencil]="!isEditing()"></i>
             {{ isEditing() ? 'Cancel' : 'Edit Profile' }}
           </button>
@@ -36,7 +37,11 @@
         <div class="profile-photo-section">
           <div class="photo-wrapper">
             @if (user()?.profilePhotoUrl) {
-              <img [src]="user()?.profilePhotoUrl" alt="Profile" class="profile-photo" />
+              <img
+                [src]="$safeNavigationMigration(user()?.profilePhotoUrl)"
+                alt="Profile"
+                class="profile-photo"
+              />
             } @else {
               <div class="profile-photo-placeholder">
                 <span>{{ userInitials() }}</span>
@@ -53,7 +58,8 @@
             type="file"
             accept="image/*"
             style="display: none"
-            (change)="onPhotoSelected($event)" />
+            (change)="onPhotoSelected($event)"
+          />
           <p class="photo-hint">Click the camera to upload a new photo</p>
         </div>
 
@@ -66,13 +72,23 @@
               </div>
               <div class="form-field">
                 <label for="lastName">Last Name</label>
-                <input pInputText id="lastName" [(ngModel)]="editForm.lastName" class="form-input" />
+                <input
+                  pInputText
+                  id="lastName"
+                  [(ngModel)]="editForm.lastName"
+                  class="form-input"
+                />
               </div>
             </div>
             <div class="form-row">
               <div class="form-field">
                 <label for="username">Username</label>
-                <input pInputText id="username" [(ngModel)]="editForm.username" class="form-input" />
+                <input
+                  pInputText
+                  id="username"
+                  [(ngModel)]="editForm.username"
+                  class="form-input"
+                />
               </div>
               <div class="form-field">
                 <label for="phone">Phone</label>
@@ -82,11 +98,23 @@
             <div class="form-row">
               <div class="form-field">
                 <label for="dateOfBirth">Date of Birth</label>
-                <input pInputText id="dateOfBirth" type="date" [(ngModel)]="editForm.dateOfBirth" class="form-input" />
+                <input
+                  pInputText
+                  id="dateOfBirth"
+                  type="date"
+                  [(ngModel)]="editForm.dateOfBirth"
+                  class="form-input"
+                />
               </div>
               <div class="form-field">
                 <label for="gender">Gender</label>
-                <input pInputText id="gender" [(ngModel)]="editForm.gender" class="form-input" placeholder="male, female, other..." />
+                <input
+                  pInputText
+                  id="gender"
+                  [(ngModel)]="editForm.gender"
+                  class="form-input"
+                  placeholder="male, female, other..."
+                />
               </div>
             </div>
             <div class="form-row full">
@@ -120,7 +148,8 @@
                 label="Save Changes"
                 icon="pi-check"
                 [loading]="savingProfile()"
-                (clicked)="saveProfile()" />
+                (clicked)="saveProfile()"
+              />
             </div>
           </div>
         } @else {
@@ -152,17 +181,26 @@
             <div class="detail-row">
               <span class="detail-label">Location</span>
               <span class="detail-value">
-                {{ [user()?.city, user()?.state, user()?.country].filter(v => !!v).join(', ') || 'Not set' }}
+                {{
+                  [user()?.city, user()?.state, user()?.country].filter((v) => !!v).join(', ') ||
+                    'Not set'
+                }}
               </span>
             </div>
             <div class="detail-row">
               <span class="detail-label">Member Since</span>
-              <span class="detail-value">{{ user()?.createdAt | date:'mediumDate' }}</span>
+              <span class="detail-value">{{
+                $safeNavigationMigration(user()?.createdAt) | date: 'mediumDate'
+              }}</span>
             </div>
             <div class="detail-row">
               <span class="detail-label">Email Verified</span>
               <span class="detail-value">
-                <span [class]="user()?.emailVerifiedAt ? 'status-badge success' : 'status-badge warning'">
+                <span
+                  [class]="
+                    user()?.emailVerifiedAt ? 'status-badge success' : 'status-badge warning'
+                  "
+                >
                   {{ user()?.emailVerifiedAt ? 'Verified' : 'Pending' }}
                 </span>
               </span>
@@ -187,31 +225,40 @@
 
           @if (user()?.totpEnabled) {
             <div class="totp-info">
-              <p><i class="pi pi-shield" style="color: var(--accent-success)"></i> TOTP is currently enabled.</p>
+              <p>
+                <i class="pi pi-shield" style="color: var(--accent-success)"></i> TOTP is currently
+                enabled.
+              </p>
               <div class="totp-actions">
                 <p-button
                   label="Regenerate Codes"
                   icon="pi pi-refresh"
                   severity="secondary"
                   [text]="true"
-                  (onClick)="regenerateBackupCodes()" />
+                  (onClick)="regenerateBackupCodes()"
+                />
                 <p-button
                   label="Disable 2FA"
                   icon="pi pi-lock-open"
                   severity="danger"
                   [text]="true"
-                  (onClick)="disableTotp()" />
+                  (onClick)="disableTotp()"
+                />
               </div>
             </div>
           } @else {
             <div class="totp-info">
-              <p><i class="pi pi-exclamation-triangle" style="color: var(--accent-warning)"></i> Two-factor authentication is not enabled.</p>
+              <p>
+                <i class="pi pi-exclamation-triangle" style="color: var(--accent-warning)"></i>
+                Two-factor authentication is not enabled.
+              </p>
               <p-button
                 label="Enable 2FA"
                 icon="pi pi-shield"
                 styleClass="btn-primary-modern"
                 [loading]="totpSetupLoading()"
-                (onClick)="enableTotp()" />
+                (onClick)="enableTotp()"
+              />
             </div>
           }
         </div>
@@ -223,20 +270,39 @@
           <div class="password-form">
             <div class="form-field">
               <label for="currentPassword">Current Password</label>
-              <input pInputText id="currentPassword" type="password" [(ngModel)]="passwordForm.currentPassword" class="form-input" />
+              <input
+                pInputText
+                id="currentPassword"
+                type="password"
+                [(ngModel)]="passwordForm.currentPassword"
+                class="form-input"
+              />
             </div>
             <div class="form-field">
               <label for="newPassword">New Password</label>
-              <input pInputText id="newPassword" type="password" [(ngModel)]="passwordForm.newPassword" class="form-input" />
+              <input
+                pInputText
+                id="newPassword"
+                type="password"
+                [(ngModel)]="passwordForm.newPassword"
+                class="form-input"
+              />
             </div>
             <div class="form-field">
               <label for="confirmPassword">Confirm New Password</label>
-              <input pInputText id="confirmPassword" type="password" [(ngModel)]="passwordForm.confirmPassword" class="form-input" />
+              <input
+                pInputText
+                id="confirmPassword"
+                type="password"
+                [(ngModel)]="passwordForm.confirmPassword"
+                class="form-input"
+              />
             </div>
             <button
               class="btn-primary-modern"
               [disabled]="!canUpdatePassword() || savingPassword()"
-              (click)="changePassword()">
+              (click)="changePassword()"
+            >
               <i class="pi pi-key"></i>
               Update Password
             </button>
@@ -258,7 +324,9 @@
           </div>
 
           @if (loadingSessions()) {
-            <div class="session-loading"><i class="pi pi-spin pi-spinner"></i> Loading sessions…</div>
+            <div class="session-loading">
+              <i class="pi pi-spin pi-spinner"></i> Loading sessions…
+            </div>
           } @else if (sessions().length === 0) {
             <p class="session-empty">No active sessions to display.</p>
           } @else {
@@ -269,11 +337,15 @@
                   <div class="session-info">
                     <span class="session-primary">
                       {{ s.userAgent || 'Unknown device' }}
-                      @if (s.current) { <span class="status-badge success">This device</span> }
+                      @if (s.current) {
+                        <span class="status-badge success">This device</span>
+                      }
                     </span>
                     <span class="session-meta">
                       {{ s.ipAddress || '—' }}{{ s.location ? ' · ' + s.location : '' }}
-                      @if (s.lastActiveAt) { · {{ s.lastActiveAt | date:'medium' }} }
+                      @if (s.lastActiveAt) {
+                        · {{ s.lastActiveAt | date: 'medium' }}
+                      }
                     </span>
                   </div>
                   @if (!s.current) {
@@ -282,8 +354,14 @@
                       title="Revoke session"
                       aria-label="Revoke session"
                       [disabled]="revokingId() === s.id"
-                      (click)="revokeSession(s.id)">
-                      <i class="pi" [class.pi-spin]="revokingId() === s.id" [class.pi-spinner]="revokingId() === s.id" [class.pi-trash]="revokingId() !== s.id"></i>
+                      (click)="revokeSession(s.id)"
+                    >
+                      <i
+                        class="pi"
+                        [class.pi-spin]="revokingId() === s.id"
+                        [class.pi-spinner]="revokingId() === s.id"
+                        [class.pi-trash]="revokingId() !== s.id"
+                      ></i>
                     </button>
                   }
                 </li>
@@ -298,7 +376,9 @@
           <div class="security-header">
             <div>
               <h3 class="security-title">Trusted Devices</h3>
-              <p class="security-desc">Devices that can skip two-factor verification for 30 days.</p>
+              <p class="security-desc">
+                Devices that can skip two-factor verification for 30 days.
+              </p>
             </div>
             @if (trustedDevices().length > 0) {
               <button class="logout-link" (click)="revokeAllTrustedDevices()">
@@ -308,7 +388,9 @@
           </div>
 
           @if (loadingDevices()) {
-            <div class="session-loading"><i class="pi pi-spin pi-spinner"></i> Loading devices…</div>
+            <div class="session-loading">
+              <i class="pi pi-spin pi-spinner"></i> Loading devices…
+            </div>
           } @else if (trustedDevices().length === 0) {
             <p class="session-empty">No trusted devices.</p>
           } @else {
@@ -317,10 +399,16 @@
                 <li class="session-item">
                   <div class="session-icon"><i class="pi pi-mobile"></i></div>
                   <div class="session-info">
-                    <span class="session-primary">{{ d.name || d.userAgent || 'Unknown device' }}</span>
+                    <span class="session-primary">{{
+                      d.name || d.userAgent || 'Unknown device'
+                    }}</span>
                     <span class="session-meta">
-                      @if (d.lastUsedAt) { Last used {{ d.lastUsedAt | date:'medium' }} }
-                      @if (d.expiresAt) { · Expires {{ d.expiresAt | date:'mediumDate' }} }
+                      @if (d.lastUsedAt) {
+                        Last used {{ d.lastUsedAt | date: 'medium' }}
+                      }
+                      @if (d.expiresAt) {
+                        · Expires {{ d.expiresAt | date: 'mediumDate' }}
+                      }
                     </span>
                   </div>
                   <button
@@ -328,8 +416,14 @@
                     title="Remove device"
                     aria-label="Remove trusted device"
                     [disabled]="revokingId() === d.id"
-                    (click)="revokeTrustedDevice(d.id)">
-                    <i class="pi" [class.pi-spin]="revokingId() === d.id" [class.pi-spinner]="revokingId() === d.id" [class.pi-trash]="revokingId() !== d.id"></i>
+                    (click)="revokeTrustedDevice(d.id)"
+                  >
+                    <i
+                      class="pi"
+                      [class.pi-spin]="revokingId() === d.id"
+                      [class.pi-spinner]="revokingId() === d.id"
+                      [class.pi-trash]="revokingId() !== d.id"
+                    ></i>
                   </button>
                 </li>
               }
@@ -370,7 +464,8 @@
   [imageUrl]="cropperImageUrl()"
   [aspectRatio]="1"
   [circular]="true"
-  (cropped)="onCropped($event)" />
+  (cropped)="onCropped($event)"
+/>
 
 <!-- TOTP Setup Dialog -->
 <p-dialog
@@ -382,8 +477,8 @@
   [resizable]="false"
   header="Set Up Two-Factor Authentication"
   styleClass="totp-dialog"
-  appendTo="body">
-
+  appendTo="body"
+>
   <div class="totp-setup-content">
     @if (totpSetupLoading()) {
       <div class="totp-loading">
@@ -392,9 +487,15 @@
       </div>
     } @else if (totpSetupData()) {
       <div class="totp-qr-section">
-        <p class="totp-instruction">Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)</p>
+        <p class="totp-instruction">
+          Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)
+        </p>
         <div class="qr-wrapper">
-          <img [src]="totpSetupData()?.qrCodeUrl" alt="TOTP QR Code" class="totp-qr" />
+          <img
+            [src]="$safeNavigationMigration(totpSetupData()?.qrCodeUrl)"
+            alt="TOTP QR Code"
+            class="totp-qr"
+          />
         </div>
         @if (totpSetupData()?.manualEntryKey) {
           <div class="manual-key">
@@ -417,7 +518,8 @@
           [ngModel]="totpCode()"
           (ngModelChange)="totpCode.set($event)"
           class="form-input totp-input"
-          placeholder="000000" />
+          placeholder="000000"
+        />
       </div>
     }
   </div>
@@ -428,14 +530,16 @@
         label="Cancel"
         icon="pi pi-times"
         styleClass="btn-secondary-modern"
-        (onClick)="closeTotpSetup()" />
+        (onClick)="closeTotpSetup()"
+      />
       <p-button
         label="Verify & Enable"
         icon="pi pi-check"
         styleClass="btn-primary-modern"
         [loading]="savingTotp()"
         [disabled]="!totpCode() || totpCode().length < 6"
-        (onClick)="confirmTotpSetup()" />
+        (onClick)="confirmTotpSetup()"
+      />
     </div>
   </ng-template>
 </p-dialog>
@@ -449,8 +553,8 @@
   [resizable]="false"
   header="Backup Codes"
   styleClass="backup-codes-dialog"
-  appendTo="body">
-
+  appendTo="body"
+>
   <div class="backup-codes-content">
     <p class="backup-warning">
       <i class="pi pi-exclamation-circle" style="color: var(--accent-warning)"></i>
@@ -469,7 +573,8 @@
         label="Close"
         icon="pi pi-check"
         styleClass="btn-primary-modern"
-        (onClick)="backupCodesVisible.set(false)" />
+        (onClick)="backupCodesVisible.set(false)"
+      />
     </div>
   </ng-template>
 </p-dialog>

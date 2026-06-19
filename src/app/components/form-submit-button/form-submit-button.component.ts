@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 
@@ -6,7 +6,8 @@ import { ButtonModule } from 'primeng/button';
   selector: 'app-form-submit-button',
   imports: [CommonModule, ButtonModule],
   templateUrl: './form-submit-button.component.html',
-  styleUrl: './form-submit-button.component.css'
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './form-submit-button.component.css',
 })
 export class FormSubmitButtonComponent {
   label = input.required<string>();

@@ -1,11 +1,19 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
+import {
+  ApplicationConfig,
+  provideBrowserGlobalErrorListeners,
+  provideZonelessChangeDetection,
+} from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 
 import { routes } from './app.routes';
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import {
+  provideClientHydration,
+  withEventReplay,
+  withNoIncrementalHydration,
+} from '@angular/platform-browser';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideApiConfiguration } from './api/api-configuration';
 import { authInterceptor } from './api/interceptors/auth.interceptor';
@@ -24,7 +32,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes, withComponentInputBinding()),
-    provideClientHydration(withEventReplay()),
+    provideClientHydration(withEventReplay(), withNoIncrementalHydration()),
     provideZonelessChangeDetection(),
     provideAnimations(),
     providePrimeNG({
@@ -32,11 +40,11 @@ export const appConfig: ApplicationConfig = {
         preset: Aura,
         options: {
           darkModeSelector: '.dark',
-          cssLayer: { name: 'primeng', order: 'primeng' }
-        }
-      }
+          cssLayer: { name: 'primeng', order: 'primeng' },
+        },
+      },
     }),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
-    provideApiConfiguration(apiBaseUrl)
-  ]
+    provideApiConfiguration(apiBaseUrl),
+  ],
 };

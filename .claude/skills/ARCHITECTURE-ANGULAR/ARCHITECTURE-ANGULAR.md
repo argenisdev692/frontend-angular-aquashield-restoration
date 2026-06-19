@@ -2,9 +2,9 @@
 trigger: always_on
 ---
 
-# Angular 21 Clean Architecture
+# Angular 22 Clean Architecture
 
-> **Authority**: SINGLE SOURCE OF TRUTH for Angular 21 project structure and organization.
+> **Authority**: SINGLE SOURCE OF TRUTH for Angular 22 project structure and organization.
 > **Scope**: Feature-based architecture, separation of concerns, scalability patterns.
 
 ## Directory Structure
@@ -192,9 +192,9 @@ export const AUTH_ROUTES: Routes = [
 ## Best Practices
 
 ### Component Rules
-- All components are standalone — NEVER write `standalone: true` (v21 default)
+- All components are standalone — NEVER write `standalone: true` (v22 default)
 - Don't import `CommonModule` for control flow — `@if`/`@for`/`@switch` are built in
-- Set `changeDetection: ChangeDetectionStrategy.OnPush` in @Component decorator
+- Set `changeDetection: ChangeDetectionStrategy.OnPush` in @Component decorator (OnPush is the v22 default; still set explicitly for clarity)
 - Use `input()` and `output()` functions instead of decorators
 - Use signals for state management
 - Use `computed()` for derived state
@@ -243,3 +243,8 @@ import { LoginDto } from '../../models/login.dto';
 - ❌ NEVER use constructor injection - use `inject()`
 - ❌ NEVER create circular dependencies
 - ❌ NEVER put business logic in components - use services
+- ❌ NEVER set `changeDetection: ChangeDetectionStrategy.OnPush` in new components — it's the v22 default
+- ❌ NEVER use `ChangeDetectionStrategy.Default` — it is `@deprecated` in v22 (an alias for `Eager`, due to be removed); use `ChangeDetectionStrategy.Eager`
+- ❌ NEVER use `withFetch()` — Fetch is the default HTTP transport in v22
+- ❌ NEVER use `@Injectable({ providedIn: 'root' })` for new services — use `@Service()` instead
+- ❌ NEVER use `any` — TypeScript 6 strict mode; use `unknown` and narrow

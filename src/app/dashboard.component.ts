@@ -1,4 +1,11 @@
-import { Component, signal, computed, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  signal,
+  computed,
+  OnInit,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { PageHeaderComponent } from './components/page-header/page-header.component';
 import { DashboardCardComponent } from './components/dashboard-card/dashboard-card.component';
@@ -12,9 +19,18 @@ import { CompanyDataResponse } from './api/models/company-data-response';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [SidebarComponent, PageHeaderComponent, DashboardCardComponent, KanbanBoardComponent, FloatingMenuButtonComponent, ClaimsChartComponent, RecentActivityComponent],
+  imports: [
+    SidebarComponent,
+    PageHeaderComponent,
+    DashboardCardComponent,
+    KanbanBoardComponent,
+    FloatingMenuButtonComponent,
+    ClaimsChartComponent,
+    RecentActivityComponent,
+  ],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.css'
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './dashboard.css',
 })
 export class DashboardComponent implements OnInit {
   private authFeatureService = inject(AuthFeatureService);

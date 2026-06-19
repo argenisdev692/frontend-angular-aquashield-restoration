@@ -1,4 +1,14 @@
-import { Component, ElementRef, ViewChild, input, output, signal, effect, inject } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  ViewChild,
+  input,
+  output,
+  signal,
+  effect,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -9,7 +19,8 @@ import 'cropperjs/dist/cropper.css';
   selector: 'app-image-cropper-dialog',
   imports: [CommonModule, DialogModule, ButtonModule],
   templateUrl: './image-cropper-dialog.component.html',
-  styleUrl: './image-cropper-dialog.component.css'
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './image-cropper-dialog.component.css',
 })
 export class ImageCropperDialogComponent {
   private elRef = inject(ElementRef);
@@ -66,7 +77,7 @@ export class ImageCropperDialogComponent {
         if (this.circular()) {
           this.applyCircularMask();
         }
-      }
+      },
     });
   }
 
@@ -89,15 +100,19 @@ export class ImageCropperDialogComponent {
       height: 512,
       fillColor: '#fff',
       imageSmoothingEnabled: true,
-      imageSmoothingQuality: 'high'
+      imageSmoothingQuality: 'high',
     });
 
-    canvas.toBlob((blob) => {
-      if (blob) {
-        this.cropped.emit(blob);
-        this.visibleChange.emit(false);
-      }
-    }, 'image/jpeg', 0.92);
+    canvas.toBlob(
+      (blob) => {
+        if (blob) {
+          this.cropped.emit(blob);
+          this.visibleChange.emit(false);
+        }
+      },
+      'image/jpeg',
+      0.92,
+    );
   }
 
   protected rotate(deg: number): void {

@@ -1,4 +1,11 @@
-import { Component, inject, signal, computed, resource } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  computed,
+  resource,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -13,6 +20,7 @@ import { SidebarComponent } from '../../../components/sidebar/sidebar.component'
   standalone: true,
   imports: [CommonModule, DatePipe, PageHeaderComponent, SidebarComponent],
   templateUrl: './posts-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './posts-detail.component.css',
 })
 export class PostsDetailComponent {

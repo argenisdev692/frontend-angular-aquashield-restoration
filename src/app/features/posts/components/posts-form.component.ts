@@ -1,13 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { PostsFeatureService } from '../services/posts-feature.service';
-import {
-  CreatePostDto,
-  UpdatePostInput,
-  PostResponse,
-} from '../models/posts.types';
+import { CreatePostDto, UpdatePostInput, PostResponse } from '../models/posts.types';
 import { PageHeaderComponent } from '../../../components/page-header/page-header.component';
 import { SidebarComponent } from '../../../components/sidebar/sidebar.component';
 import { CrudFormBase, CrudService } from '../../../shared/crud-form-base';
@@ -15,20 +11,12 @@ import { CrudFormBase, CrudService } from '../../../shared/crud-form-base';
 @Component({
   selector: 'app-posts-form',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    PageHeaderComponent,
-    SidebarComponent,
-  ],
+  imports: [CommonModule, ReactiveFormsModule, PageHeaderComponent, SidebarComponent],
   templateUrl: './posts-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './posts-form.component.css',
 })
-export class PostsFormComponent extends CrudFormBase<
-  PostResponse,
-  CreatePostDto,
-  UpdatePostInput
-> {
+export class PostsFormComponent extends CrudFormBase<PostResponse, CreatePostDto, UpdatePostInput> {
   private api = inject(PostsFeatureService);
   readonly drawerVisible = signal(false);
 

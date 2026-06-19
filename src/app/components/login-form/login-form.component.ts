@@ -1,4 +1,15 @@
-import { Component, signal, computed, effect, ElementRef, viewChildren, inject, PLATFORM_ID, OnDestroy } from '@angular/core';
+import {
+  Component,
+  signal,
+  computed,
+  effect,
+  ElementRef,
+  viewChildren,
+  inject,
+  PLATFORM_ID,
+  OnDestroy,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -16,8 +27,8 @@ type AuthMethod = 'password' | 'email_otp' | 'totp';
   selector: 'app-login-form',
   imports: [ButtonModule, InputTextModule, MessageModule],
   templateUrl: './login-form.component.html',
-  styleUrl: './login-form.component.css'
- 
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './login-form.component.css',
 })
 export class LoginFormComponent implements OnDestroy {
   otpInputs = viewChildren<ElementRef<HTMLInputElement>>('otpInput');
@@ -97,18 +108,28 @@ export class LoginFormComponent implements OnDestroy {
 
   // ── Computed validations ──
   isFormValid = computed(() => this.isValidEmail(this.email()) && this.password().length >= 6);
-  canSubmitPassword = computed(() => this.isFormValid() && !this.isLoading() && !this.isLockedOut());
+  canSubmitPassword = computed(
+    () => this.isFormValid() && !this.isLoading() && !this.isLockedOut(),
+  );
 
   emailOtpCode = computed(() => this.emailOtpDigits().join(''));
   canVerifyEmailOtp = computed(() => this.emailOtpCode().length === 6 && !this.isLoading());
 
   totpCode = computed(() => this.totpDigits().join(''));
-  canVerifyTotp = computed(() => this.totpCode().length === 6 && !this.isLoading() && this.isValidEmail(this.totpEmail()));
+  canVerifyTotp = computed(
+    () => this.totpCode().length === 6 && !this.isLoading() && this.isValidEmail(this.totpEmail()),
+  );
 
   constructor() {
-    effect(() => { if (this.email() || this.password()) this.errorMessage.set(''); });
-    effect(() => { if (this.emailOtpDigits().some(d => d)) this.errorMessage.set(''); });
-    effect(() => { if (this.totpDigits().some(d => d)) this.errorMessage.set(''); });
+    effect(() => {
+      if (this.email() || this.password()) this.errorMessage.set('');
+    });
+    effect(() => {
+      if (this.emailOtpDigits().some((d) => d)) this.errorMessage.set('');
+    });
+    effect(() => {
+      if (this.totpDigits().some((d) => d)) this.errorMessage.set('');
+    });
 
     // Reset form when user becomes unauthenticated (handles same-route navigation after timeout)
     effect(() => {
@@ -119,9 +140,12 @@ export class LoginFormComponent implements OnDestroy {
     });
 
     // Fetch public company data for footer display
-    this.companyDataService.companyDataControllerFindPublic()
-      .then(data => this.companyData.set(data))
-      .catch(() => { /* silently fail */ });
+    this.companyDataService
+      .companyDataControllerFindPublic()
+      .then((data) => this.companyData.set(data))
+      .catch(() => {
+        /* silently fail */
+      });
   }
 
   private resetForm(): void {
@@ -176,17 +200,30 @@ export class LoginFormComponent implements OnDestroy {
   }
 
   // ── Password tab handlers ──
-  updateEmail(event: Event): void { this.email.set((event.target as HTMLInputElement).value); }
-  updatePassword(event: Event): void { this.password.set((event.target as HTMLInputElement).value); }
-  togglePasswordVisibility(): void { this.showPassword.update(v => !v); }
-  toggleRememberMe(): void { this.rememberMe.update(v => !v); }
+  updateEmail(event: Event): void {
+    this.email.set((event.target as HTMLInputElement).value);
+  }
+  updatePassword(event: Event): void {
+    this.password.set((event.target as HTMLInputElement).value);
+  }
+  togglePasswordVisibility(): void {
+    this.showPassword.update((v) => !v);
+  }
+  toggleRememberMe(): void {
+    this.rememberMe.update((v) => !v);
+  }
 
   async onPasswordSubmit(event: Event): Promise<void> {
     event.preventDefault();
     if (!this.canSubmitPassword()) return;
-    if (this.isLockedOut()) { this.errorMessage.set(`Too many attempts. Wait ${this.lockoutSecondsRemaining()}s.`); return; }
+    if (this.isLockedOut()) {
+      this.errorMessage.set(`Too many attempts. Wait ${this.lockoutSecondsRemaining()}s.`);
+      return;
+    }
 
-    this.isLoading.set(true); this.errorMessage.set(''); this.successMessage.set('');
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+    this.successMessage.set('');
     try {
       const credentials: LoginDto = { email: this.email(), password: this.password() };
       this.returnUrl = this.route.snapshot.queryParams['returnUrl'];
@@ -203,17 +240,30 @@ export class LoginFormComponent implements OnDestroy {
     } catch {
       const attempts = this.failedAttempts() + 1;
       this.failedAttempts.set(attempts);
-      if (attempts >= this.MAX_ATTEMPTS) { this.lockoutUntil.set(Date.now() + this.LOCKOUT_MS); this.startLockoutTicker(); this.errorMessage.set('Account locked for 30 seconds.'); }
-      else { this.errorMessage.set(`Invalid credentials. Attempt ${attempts} of ${this.MAX_ATTEMPTS}.`); }
-    } finally { this.isLoading.set(false); }
+      if (attempts >= this.MAX_ATTEMPTS) {
+        this.lockoutUntil.set(Date.now() + this.LOCKOUT_MS);
+        this.startLockoutTicker();
+        this.errorMessage.set('Account locked for 30 seconds.');
+      } else {
+        this.errorMessage.set(`Invalid credentials. Attempt ${attempts} of ${this.MAX_ATTEMPTS}.`);
+      }
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 
   // ── Email OTP tab handlers ──
-  updateEmailOtpEmail(event: Event): void { this.emailOtpEmail.set((event.target as HTMLInputElement).value); }
+  updateEmailOtpEmail(event: Event): void {
+    this.emailOtpEmail.set((event.target as HTMLInputElement).value);
+  }
 
   async onSendEmailOtp(): Promise<void> {
-    if (!this.isValidEmail(this.emailOtpEmail())) { this.errorMessage.set('Please enter a valid email'); return; }
-    this.isLoading.set(true); this.errorMessage.set('');
+    if (!this.isValidEmail(this.emailOtpEmail())) {
+      this.errorMessage.set('Please enter a valid email');
+      return;
+    }
+    this.isLoading.set(true);
+    this.errorMessage.set('');
     try {
       await this.authService.sendEmailOtp(this.emailOtpEmail());
       this.emailOtpSent.set(true);
@@ -221,80 +271,125 @@ export class LoginFormComponent implements OnDestroy {
       if (isPlatformBrowser(this.platformId)) {
         setTimeout(() => this.otpInputs()[0]?.nativeElement.focus(), 100);
       }
-    } catch { this.errorMessage.set('Failed to send code. Please try again.'); }
-    finally { this.isLoading.set(false); }
+    } catch {
+      this.errorMessage.set('Failed to send code. Please try again.');
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 
   updateEmailOtpDigit(index: number, event: Event): void {
     const val = (event.target as HTMLInputElement).value.replace(/\D/g, '').slice(0, 1);
-    const digits = [...this.emailOtpDigits()]; digits[index] = val; this.emailOtpDigits.set(digits);
+    const digits = [...this.emailOtpDigits()];
+    digits[index] = val;
+    this.emailOtpDigits.set(digits);
     if (val && index < 5) this.otpInputs()[index + 1]?.nativeElement.focus();
   }
 
   handleEmailOtpKeydown(index: number, event: KeyboardEvent): void {
     const digits = [...this.emailOtpDigits()];
     if (event.key === 'Backspace') {
-      if (!digits[index] && index > 0) { event.preventDefault(); this.otpInputs()[index - 1]?.nativeElement.focus(); }
-      else if (digits[index]) { digits[index] = ''; this.emailOtpDigits.set(digits); }
+      if (!digits[index] && index > 0) {
+        event.preventDefault();
+        this.otpInputs()[index - 1]?.nativeElement.focus();
+      } else if (digits[index]) {
+        digits[index] = '';
+        this.emailOtpDigits.set(digits);
+      }
     }
-    if (event.key === 'ArrowLeft' && index > 0) { event.preventDefault(); this.otpInputs()[index - 1]?.nativeElement.focus(); }
-    if (event.key === 'ArrowRight' && index < 5) { event.preventDefault(); this.otpInputs()[index + 1]?.nativeElement.focus(); }
+    if (event.key === 'ArrowLeft' && index > 0) {
+      event.preventDefault();
+      this.otpInputs()[index - 1]?.nativeElement.focus();
+    }
+    if (event.key === 'ArrowRight' && index < 5) {
+      event.preventDefault();
+      this.otpInputs()[index + 1]?.nativeElement.focus();
+    }
   }
 
   handleEmailOtpPaste(event: ClipboardEvent): void {
     event.preventDefault();
     const paste = event.clipboardData?.getData('text') || '';
     const digits = paste.replace(/\D/g, '').slice(0, 6).split('');
-    const current = ['', '', '', '', '', '']; digits.forEach((d, i) => { if (i < 6) current[i] = d; });
+    const current = ['', '', '', '', '', ''];
+    digits.forEach((d, i) => {
+      if (i < 6) current[i] = d;
+    });
     this.emailOtpDigits.set(current);
     this.otpInputs()[Math.min(digits.length, 5)]?.nativeElement.focus();
   }
 
   async onVerifyEmailOtp(): Promise<void> {
     if (!this.canVerifyEmailOtp()) return;
-    this.isLoading.set(true); this.errorMessage.set('');
+    this.isLoading.set(true);
+    this.errorMessage.set('');
     try {
       this.returnUrl = this.route.snapshot.queryParams['returnUrl'];
-      await this.authService.verifyEmailOtp(this.emailOtpEmail(), this.emailOtpCode(), this.returnUrl);
+      await this.authService.verifyEmailOtp(
+        this.emailOtpEmail(),
+        this.emailOtpCode(),
+        this.returnUrl,
+      );
       this.redirectAfterLoginBanner();
     } catch {
       this.errorMessage.set('Invalid code. Please try again.');
       this.emailOtpDigits.set(['', '', '', '', '', '']);
       setTimeout(() => this.otpInputs()[0]?.nativeElement.focus(), 50);
-    } finally { this.isLoading.set(false); }
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 
   // ── TOTP tab handlers ──
-  updateTotpEmail(event: Event): void { this.totpEmail.set((event.target as HTMLInputElement).value); }
+  updateTotpEmail(event: Event): void {
+    this.totpEmail.set((event.target as HTMLInputElement).value);
+  }
 
   updateTotpDigit(index: number, event: Event): void {
     const val = (event.target as HTMLInputElement).value.replace(/\D/g, '').slice(0, 1);
-    const digits = [...this.totpDigits()]; digits[index] = val; this.totpDigits.set(digits);
+    const digits = [...this.totpDigits()];
+    digits[index] = val;
+    this.totpDigits.set(digits);
     if (val && index < 5) this.totpInputs()[index + 1]?.nativeElement.focus();
   }
 
   handleTotpKeydown(index: number, event: KeyboardEvent): void {
     const digits = [...this.totpDigits()];
     if (event.key === 'Backspace') {
-      if (!digits[index] && index > 0) { event.preventDefault(); this.totpInputs()[index - 1]?.nativeElement.focus(); }
-      else if (digits[index]) { digits[index] = ''; this.totpDigits.set(digits); }
+      if (!digits[index] && index > 0) {
+        event.preventDefault();
+        this.totpInputs()[index - 1]?.nativeElement.focus();
+      } else if (digits[index]) {
+        digits[index] = '';
+        this.totpDigits.set(digits);
+      }
     }
-    if (event.key === 'ArrowLeft' && index > 0) { event.preventDefault(); this.totpInputs()[index - 1]?.nativeElement.focus(); }
-    if (event.key === 'ArrowRight' && index < 5) { event.preventDefault(); this.totpInputs()[index + 1]?.nativeElement.focus(); }
+    if (event.key === 'ArrowLeft' && index > 0) {
+      event.preventDefault();
+      this.totpInputs()[index - 1]?.nativeElement.focus();
+    }
+    if (event.key === 'ArrowRight' && index < 5) {
+      event.preventDefault();
+      this.totpInputs()[index + 1]?.nativeElement.focus();
+    }
   }
 
   handleTotpPaste(event: ClipboardEvent): void {
     event.preventDefault();
     const paste = event.clipboardData?.getData('text') || '';
     const digits = paste.replace(/\D/g, '').slice(0, 6).split('');
-    const current = ['', '', '', '', '', '']; digits.forEach((d, i) => { if (i < 6) current[i] = d; });
+    const current = ['', '', '', '', '', ''];
+    digits.forEach((d, i) => {
+      if (i < 6) current[i] = d;
+    });
     this.totpDigits.set(current);
     this.totpInputs()[Math.min(digits.length, 5)]?.nativeElement.focus();
   }
 
   async onVerifyTotp(): Promise<void> {
     if (!this.canVerifyTotp()) return;
-    this.isLoading.set(true); this.errorMessage.set('');
+    this.isLoading.set(true);
+    this.errorMessage.set('');
     try {
       this.returnUrl = this.route.snapshot.queryParams['returnUrl'];
       await this.authService.loginWithTotp(this.totpEmail(), this.totpCode(), this.returnUrl);
@@ -303,16 +398,30 @@ export class LoginFormComponent implements OnDestroy {
       this.errorMessage.set('Invalid code. Please try again.');
       this.totpDigits.set(['', '', '', '', '', '']);
       setTimeout(() => this.totpInputs()[0]?.nativeElement.focus(), 50);
-    } finally { this.isLoading.set(false); }
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 
   // ── Forgot password ──
-  updateForgotEmail(event: Event): void { this.forgotEmail.set((event.target as HTMLInputElement).value); }
-  updateResetCode(event: Event): void { this.resetCode.set((event.target as HTMLInputElement).value); }
-  updateNewPassword(event: Event): void { this.newPassword.set((event.target as HTMLInputElement).value); }
-  updateConfirmPassword(event: Event): void { this.confirmPassword.set((event.target as HTMLInputElement).value); }
-  toggleShowNewPassword(): void { this.showNewPassword.update(v => !v); }
-  toggleShowConfirmPassword(): void { this.showConfirmPassword.update(v => !v); }
+  updateForgotEmail(event: Event): void {
+    this.forgotEmail.set((event.target as HTMLInputElement).value);
+  }
+  updateResetCode(event: Event): void {
+    this.resetCode.set((event.target as HTMLInputElement).value);
+  }
+  updateNewPassword(event: Event): void {
+    this.newPassword.set((event.target as HTMLInputElement).value);
+  }
+  updateConfirmPassword(event: Event): void {
+    this.confirmPassword.set((event.target as HTMLInputElement).value);
+  }
+  toggleShowNewPassword(): void {
+    this.showNewPassword.update((v) => !v);
+  }
+  toggleShowConfirmPassword(): void {
+    this.showConfirmPassword.update((v) => !v);
+  }
 
   canSubmitReset = computed(() => {
     const code = this.resetCode().trim();
@@ -322,33 +431,56 @@ export class LoginFormComponent implements OnDestroy {
   });
 
   async onForgotPasswordSubmit(): Promise<void> {
-    if (!this.isValidEmail(this.forgotEmail())) { this.errorMessage.set('Please enter a valid email address'); return; }
-    this.isLoading.set(true); this.errorMessage.set('');
+    if (!this.isValidEmail(this.forgotEmail())) {
+      this.errorMessage.set('Please enter a valid email address');
+      return;
+    }
+    this.isLoading.set(true);
+    this.errorMessage.set('');
     try {
       await this.authService.forgotPassword(this.forgotEmail());
       this.forgotCodeSent.set(true);
       this.successMessage.set('Reset code sent! Check your email.');
-    } catch { this.errorMessage.set('Failed to send reset code. Please try again.'); }
-    finally { this.isLoading.set(false); }
+    } catch {
+      this.errorMessage.set('Failed to send reset code. Please try again.');
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 
   async onResetPasswordSubmit(): Promise<void> {
     if (!this.canSubmitReset()) return;
-    this.isLoading.set(true); this.errorMessage.set('');
+    this.isLoading.set(true);
+    this.errorMessage.set('');
     try {
-      await this.authService.resetPassword(this.forgotEmail(), this.resetCode(), this.newPassword());
+      await this.authService.resetPassword(
+        this.forgotEmail(),
+        this.resetCode(),
+        this.newPassword(),
+      );
       this.resetSuccess.set(true);
       this.successMessage.set('Password reset successful! You can now sign in.');
-    } catch { this.errorMessage.set('Invalid code or reset expired. Please try again.'); }
-    finally { this.isLoading.set(false); }
+    } catch {
+      this.errorMessage.set('Invalid code or reset expired. Please try again.');
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 
   // ── Google ──
-  onGoogleSignIn(): void { this.authService.googleSignIn(); }
+  onGoogleSignIn(): void {
+    this.authService.googleSignIn();
+  }
 
   // ── Error getters ──
-  get emailError(): string { const v = this.email(); return !v ? '' : !this.isValidEmail(v) ? 'Please enter a valid email address' : ''; }
-  get passwordError(): string { const v = this.password(); return !v ? '' : v.length < 6 ? 'Password must be at least 6 characters' : ''; }
+  get emailError(): string {
+    const v = this.email();
+    return !v ? '' : !this.isValidEmail(v) ? 'Please enter a valid email address' : '';
+  }
+  get passwordError(): string {
+    const v = this.password();
+    return !v ? '' : v.length < 6 ? 'Password must be at least 6 characters' : '';
+  }
 
   // ── Shared success redirect helper ──
   // Shows the transient banner then navigates. Delay gives the UI a tick to render in zoneless mode.

@@ -1,7 +1,7 @@
 # Angular New Component Command
 
 ## Description
-Create a new Angular 21 standalone component with proper structure and best practices.
+Create a new Angular 22 standalone component with proper structure and best practices.
 
 ## Usage
 ```
@@ -21,20 +21,20 @@ src/app/features/[feature]/
 
 ## Component Template
 ```typescript
-import { ChangeDetectionStrategy, Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 
 @Component({
   selector: 'app-[component-name]',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  // No changeDetection needed — OnPush is the v22 default
   // imports: only what the template uses (e.g. ReactiveFormsModule, a PrimeNG module) — NOT CommonModule
   template: `
     <div class="card-modern">
-      <!-- Component content; use @if/@for/@switch for control flow -->
+      <!-- Use @if/@for/@switch for control flow -->
     </div>
   `
 })
 export class [ComponentName]Component {
-  // Services
+  // Services — use @Service() for new singletons
   private readonly service = inject(ServiceName);
 
   // State
@@ -45,9 +45,23 @@ export class [ComponentName]Component {
 }
 ```
 
+## Service Template (v22 — prefer @Service decorator)
+```typescript
+import { Service, inject } from '@angular/core';
+import { httpResource } from '@angular/common/http';
+
+@Service()
+export class [FeatureName]Service {
+  // @Service() = @Injectable({ providedIn: 'root' }) shorthand
+}
+```
+
 ## Best Practices Applied
-- Standalone component — never write `standalone: true` (v21 default)
-- `ChangeDetectionStrategy.OnPush` (app is zoneless — state flows through signals)
+- Standalone component — never write `standalone: true` (v22 default)
+- **No explicit `changeDetection`** — OnPush is the v22 default; omit for new components
+- `ChangeDetectionStrategy.Default` is `@deprecated` in v22 (now an alias for `Eager`, due to be removed) — use `ChangeDetectionStrategy.Eager` and migrate any code referencing `Default`
 - No `CommonModule`; native control flow (`@if`/`@for`/`@switch`)
 - Uses `inject()` for dependency injection
-- Follows styles.css styling conventions and PrimeNG v21 styled theming
+- Prefers `@Service()` over `@Injectable({ providedIn: 'root' })` for new services
+- Follows styles.css styling conventions and PrimeNG **v21** styled theming (no v22 yet)
+- Signal Forms (`@angular/forms/signals`) for new forms — stable in v22

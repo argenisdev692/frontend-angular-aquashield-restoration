@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -28,6 +28,7 @@ import { CampaignExportListItemResponse } from '../models/campaigns.types';
     SidebarComponent,
   ],
   templateUrl: './campaigns-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './campaigns-list.component.css',
 })
 export class CampaignsListComponent extends CrudListBase<CampaignExportListItemResponse> {
@@ -87,7 +88,7 @@ export class CampaignsListComponent extends CrudListBase<CampaignExportListItemR
   buildQueryParams(
     page: number,
     limit: number,
-    filters: Record<string, unknown>
+    filters: Record<string, unknown>,
   ): Record<string, unknown> {
     // listCampaigns is offset-based (not page-based) and returns a plain array.
     const params: Record<string, unknown> = { limit, offset: (page - 1) * limit };

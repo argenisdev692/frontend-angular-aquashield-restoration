@@ -1,4 +1,12 @@
-import { Component, signal, OnInit, computed, inject, PLATFORM_ID } from '@angular/core';
+import {
+  Component,
+  signal,
+  OnInit,
+  computed,
+  inject,
+  PLATFORM_ID,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ChartModule } from 'primeng/chart';
 
@@ -7,7 +15,8 @@ import { ChartModule } from 'primeng/chart';
   standalone: true,
   imports: [CommonModule, ChartModule],
   templateUrl: './claims-chart.component.html',
-  styleUrl: './claims-chart.component.css'
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './claims-chart.component.css',
 })
 export class ClaimsChartComponent implements OnInit {
   private platformId = inject(PLATFORM_ID);
@@ -15,7 +24,7 @@ export class ClaimsChartComponent implements OnInit {
   readonly currentYear = signal(new Date().getFullYear());
 
   readonly totalClaims = computed(() =>
-    this.chartData().datasets[0].data.reduce((a: number, b: number) => a + b, 0)
+    this.chartData().datasets[0].data.reduce((a: number, b: number) => a + b, 0),
   );
 
   readonly chartData = signal({
@@ -27,9 +36,9 @@ export class ClaimsChartComponent implements OnInit {
         borderRadius: 8,
         borderSkipped: false,
         barThickness: 18,
-        maxBarThickness: 24
-      }
-    ]
+        maxBarThickness: 24,
+      },
+    ],
   });
 
   readonly chartOptions = signal<any>({});
@@ -45,7 +54,8 @@ export class ClaimsChartComponent implements OnInit {
     const textPrimary = root.getPropertyValue('--text-primary').trim() || '#E8EDF2';
     const textSecondary = root.getPropertyValue('--text-secondary').trim() || '#8A95A5';
     const textMuted = root.getPropertyValue('--text-muted').trim() || '#5E6A7A';
-    const borderDefault = root.getPropertyValue('--border-default').trim() || 'rgba(232,237,242,0.10)';
+    const borderDefault =
+      root.getPropertyValue('--border-default').trim() || 'rgba(232,237,242,0.10)';
     const accentPrimary = root.getPropertyValue('--accent-primary').trim() || '#00B5E2';
     const accentSecondary = root.getPropertyValue('--accent-secondary').trim() || '#0091C7';
 
@@ -64,9 +74,9 @@ export class ClaimsChartComponent implements OnInit {
           padding: 12,
           displayColors: false,
           callbacks: {
-            label: (ctx: any) => `${ctx.raw} claims`
-          }
-        }
+            label: (ctx: any) => `${ctx.raw} claims`,
+          },
+        },
       },
       scales: {
         x: {
@@ -74,27 +84,27 @@ export class ClaimsChartComponent implements OnInit {
           grid: { display: false },
           ticks: {
             color: textMuted,
-            font: { family: "'Exo', sans-serif", size: 11, weight: '500' }
-          }
+            font: { family: "'Exo', sans-serif", size: 11, weight: '500' },
+          },
         },
         y: {
           border: { display: false },
           grid: {
             color: borderDefault,
-            drawBorder: false
+            drawBorder: false,
           },
           ticks: {
             color: textMuted,
             font: { family: "'Exo', sans-serif", size: 11, weight: '500' },
             padding: 8,
-            stepSize: 20
+            stepSize: 20,
           },
-          beginAtZero: true
-        }
+          beginAtZero: true,
+        },
       },
       animation: {
         duration: 1200,
-        easing: 'easeOutQuart'
+        easing: 'easeOutQuart',
       },
       datasets: {
         bar: {
@@ -111,9 +121,9 @@ export class ClaimsChartComponent implements OnInit {
             gradient.addColorStop(0, '#38CFF0');
             gradient.addColorStop(1, accentPrimary);
             return gradient;
-          }
-        }
-      }
+          },
+        },
+      },
     });
   }
 }

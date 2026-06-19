@@ -1,4 +1,11 @@
-import { Component, inject, signal, computed, resource } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  computed,
+  resource,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -6,11 +13,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { ButtonModule } from 'primeng/button';
 
 import { RolesFeatureService } from '../services/roles-feature.service';
-import {
-  CreateRoleDto,
-  UpdateRoleDto,
-  RoleResponseDto,
-} from '../../../api/models';
+import { CreateRoleDto, UpdateRoleDto, RoleResponseDto } from '../../../api/models';
 import { PageHeaderComponent } from '../../../components/page-header/page-header.component';
 import { SidebarComponent } from '../../../components/sidebar/sidebar.component';
 import { CrudFormBase } from '../../../shared/crud-form-base';
@@ -28,6 +31,7 @@ import { CrudFormBase } from '../../../shared/crud-form-base';
     SidebarComponent,
   ],
   templateUrl: './roles-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './roles-form.component.css',
 })
 export class RolesFormComponent extends CrudFormBase<

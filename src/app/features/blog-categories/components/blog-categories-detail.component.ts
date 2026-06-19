@@ -1,4 +1,11 @@
-import { Component, inject, signal, computed, resource } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  computed,
+  resource,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -12,6 +19,7 @@ import { SidebarComponent } from '../../../components/sidebar/sidebar.component'
   standalone: true,
   imports: [CommonModule, DatePipe, ButtonModule, PageHeaderComponent, SidebarComponent],
   templateUrl: './blog-categories-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './blog-categories-detail.component.css',
 })
 export class BlogCategoriesDetailComponent {

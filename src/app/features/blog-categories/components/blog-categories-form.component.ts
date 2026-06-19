@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -26,6 +26,7 @@ import { CrudFormBase } from '../../../shared/crud-form-base';
     SidebarComponent,
   ],
   templateUrl: './blog-categories-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './blog-categories-form.component.css',
 })
 export class BlogCategoriesFormComponent extends CrudFormBase<

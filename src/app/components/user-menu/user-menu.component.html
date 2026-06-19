@@ -6,12 +6,14 @@
     (click)="toggle($event)"
     aria-label="User menu"
     aria-haspopup="menu"
-    [attr.aria-expanded]="open()">
+    [attr.aria-expanded]="open()"
+  >
     @if (user()?.profilePhotoUrl) {
       <img
-        [src]="user()?.profilePhotoUrl"
+        [src]="$safeNavigationMigration(user()?.profilePhotoUrl)"
         alt="Profile"
-        class="user-menu-photo" />
+        class="user-menu-photo"
+      />
     } @else {
       <div class="user-menu-avatar">
         <span>{{ userInitials() }}</span>
@@ -31,7 +33,12 @@
         <span>Profile</span>
       </button>
       <div class="user-dropdown__separator"></div>
-      <button type="button" class="user-dropdown__item user-dropdown__item--danger" role="menuitem" (click)="logout()">
+      <button
+        type="button"
+        class="user-dropdown__item user-dropdown__item--danger"
+        role="menuitem"
+        (click)="logout()"
+      >
         <i class="pi pi-sign-out"></i>
         <span>Logout</span>
       </button>

@@ -4,11 +4,15 @@
   styleClass="app-drawer"
   [showCloseIcon]="true"
   [modal]="true"
-  [dismissible]="true">
-
+  [dismissible]="true"
+>
   <ng-template #header>
     <div class="logo">
-      <img [src]="isDark() ? '/Logo%20PNG-WHITE.png' : '/Logo%20PNG.png'" alt="Logo" class="logo-img" />
+      <img
+        [src]="isDark() ? '/Logo%20PNG-WHITE.png' : '/Logo%20PNG.png'"
+        alt="Logo"
+        class="logo-img"
+      />
       <span>{{ companyName() }}</span>
     </div>
   </ng-template>
@@ -23,7 +27,8 @@
             type="button"
             [attr.aria-expanded]="isGroupOpen(item)"
             [attr.aria-label]="item.label"
-            (click)="toggleGroup(item.label)">
+            (click)="toggleGroup(item.label)"
+          >
             <i class="menu-icon {{ item.icon }}"></i>
             <span class="menu-label">{{ item.label }}</span>
             <i class="menu-chevron pi pi-chevron-down" [class.rotated]="isGroupOpen(item)"></i>
@@ -36,7 +41,8 @@
                   [class.active]="isActive(child.route)"
                   type="button"
                   [attr.aria-label]="child.label"
-                  (click)="navigate(child.route)">
+                  (click)="navigate(child.route)"
+                >
                   <i class="menu-icon {{ child.icon }}"></i>
                   <span class="menu-label">{{ child.label }}</span>
                   @if (isActive(child.route)) {
@@ -53,7 +59,8 @@
           [class.active]="isActive(item.route)"
           type="button"
           [attr.aria-label]="item.label"
-          (click)="navigate(item.route)">
+          (click)="navigate(item.route)"
+        >
           <i class="menu-icon {{ item.icon }}"></i>
           <span class="menu-label">{{ item.label }}</span>
           @if (isActive(item.route)) {
@@ -68,7 +75,11 @@
     <div class="sidebar-footer">
       <button class="user-profile" (click)="goToProfile()" type="button" aria-label="Go to profile">
         @if (user()?.profilePhotoUrl) {
-          <img [src]="user()?.profilePhotoUrl" alt="Profile" class="user-avatar-photo" />
+          <img
+            [src]="$safeNavigationMigration(user()?.profilePhotoUrl)"
+            alt="Profile"
+            class="user-avatar-photo"
+          />
         } @else {
           <div class="user-avatar">
             <span>{{ userInitials }}</span>
@@ -89,7 +100,8 @@
         <p-toggleswitch
           [ngModel]="isDark()"
           (ngModelChange)="onThemeToggle($event)"
-          ariaLabel="Toggle dark/light theme" />
+          ariaLabel="Toggle dark/light theme"
+        />
       </div>
     </div>
   </ng-template>

@@ -1,4 +1,11 @@
-import { Component, inject, signal, computed, resource } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  computed,
+  resource,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -11,8 +18,16 @@ import { SidebarComponent } from '../../../components/sidebar/sidebar.component'
 @Component({
   selector: 'app-roles-detail',
   standalone: true,
-  imports: [CommonModule, DatePipe, ButtonModule, TableModule, PageHeaderComponent, SidebarComponent],
+  imports: [
+    CommonModule,
+    DatePipe,
+    ButtonModule,
+    TableModule,
+    PageHeaderComponent,
+    SidebarComponent,
+  ],
   templateUrl: './roles-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './roles-detail.component.css',
 })
 export class RolesDetailComponent {

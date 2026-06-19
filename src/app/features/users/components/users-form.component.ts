@@ -1,4 +1,11 @@
-import { Component, inject, signal, computed, resource } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  computed,
+  resource,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormGroup,
@@ -24,9 +31,12 @@ function asyncEmailValidator(service: UsersFeatureService, excludeId?: string) {
     if (!control.value || control.value.length < 3) {
       return Promise.resolve(null);
     }
-    return service.checkEmail(control.value, excludeId).then((res) => {
-      return res.exists ? { emailExists: true } : null;
-    }).catch(() => null);
+    return service
+      .checkEmail(control.value, excludeId)
+      .then((res) => {
+        return res.exists ? { emailExists: true } : null;
+      })
+      .catch(() => null);
   };
 }
 
@@ -43,13 +53,10 @@ function asyncEmailValidator(service: UsersFeatureService, excludeId?: string) {
     SidebarComponent,
   ],
   templateUrl: './users-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './users-form.component.css',
 })
-export class UsersFormComponent extends CrudFormBase<
-  UserResponse,
-  CreateUserDto,
-  UpdateUserDto
-> {
+export class UsersFormComponent extends CrudFormBase<UserResponse, CreateUserDto, UpdateUserDto> {
   protected api = inject(UsersFeatureService);
   private rolesService = inject(RolesService);
   private permissionsService = inject(PermissionsService);

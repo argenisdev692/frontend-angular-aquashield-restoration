@@ -1,4 +1,11 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  signal,
+  computed,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -40,10 +47,11 @@ import { FloatingMenuButtonComponent } from '../../components/floating-menu-butt
     FormSubmitButtonComponent,
     ImageCropperDialogComponent,
     FloatingMenuButtonComponent,
-    DialogModule
+    DialogModule,
   ],
   templateUrl: './profile.component.html',
-  styleUrl: './profile.component.css'
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './profile.component.css',
 })
 export class ProfileComponent implements OnInit {
   private authFeatureService = inject(AuthFeatureService);
@@ -67,7 +75,11 @@ export class ProfileComponent implements OnInit {
 
   protected readonly totpSetupVisible = signal(false);
   protected readonly totpSetupLoading = signal(false);
-  protected readonly totpSetupData = signal<{ qrCodeUrl: string; secret: string; manualEntryKey?: string } | null>(null);
+  protected readonly totpSetupData = signal<{
+    qrCodeUrl: string;
+    secret: string;
+    manualEntryKey?: string;
+  } | null>(null);
   protected readonly totpCode = signal('');
   protected readonly savingTotp = signal(false);
 
@@ -86,9 +98,11 @@ export class ProfileComponent implements OnInit {
   protected passwordForm = { currentPassword: '', newPassword: '', confirmPassword: '' };
 
   protected readonly canUpdatePassword = computed(() => {
-    return !!this.passwordForm.currentPassword &&
-           !!this.passwordForm.newPassword &&
-           !!this.passwordForm.confirmPassword;
+    return (
+      !!this.passwordForm.currentPassword &&
+      !!this.passwordForm.newPassword &&
+      !!this.passwordForm.confirmPassword
+    );
   });
 
   async ngOnInit(): Promise<void> {
@@ -120,7 +134,7 @@ export class ProfileComponent implements OnInit {
   });
 
   toggleEdit(): void {
-    this.isEditing.update(v => !v);
+    this.isEditing.update((v) => !v);
     if (this.isEditing()) {
       this.resetEditForm();
     }
@@ -146,7 +160,9 @@ export class ProfileComponent implements OnInit {
   async saveProfile(): Promise<void> {
     this.savingProfile.set(true);
     try {
-      await this.generatedAuthService.authControllerUpdateMe({ body: this.editForm as UpdateProfileDto });
+      await this.generatedAuthService.authControllerUpdateMe({
+        body: this.editForm as UpdateProfileDto,
+      });
       await this.authFeatureService.fetchCurrentUser();
       this.isEditing.set(false);
       this.notify.success('Profile updated successfully');
@@ -179,7 +195,7 @@ export class ProfileComponent implements OnInit {
 
     try {
       await firstValueFrom(
-        this.http.post(joinApiUrl(this.config.rootUrl, '/api/v1/auth/me/profile-photo'), formData)
+        this.http.post(joinApiUrl(this.config.rootUrl, '/api/v1/auth/me/profile-photo'), formData),
       );
       await this.authFeatureService.fetchCurrentUser();
       this.cropperImageUrl.set(null);
@@ -208,8 +224,8 @@ export class ProfileComponent implements OnInit {
         this.http.post(joinApiUrl(this.config.rootUrl, '/api/v1/auth/change-password'), {
           currentPassword: this.passwordForm.currentPassword,
           newPassword: this.passwordForm.newPassword,
-          passwordConfirmation: this.passwordForm.confirmPassword
-        })
+          passwordConfirmation: this.passwordForm.confirmPassword,
+        }),
       );
       this.passwordForm = { currentPassword: '', newPassword: '', confirmPassword: '' };
       this.notify.success('Password changed successfully');
@@ -259,7 +275,7 @@ export class ProfileComponent implements OnInit {
     this.revokingId.set(id);
     try {
       await this.sessionsService.revokeSession(id);
-      this.sessions.update(list => list.filter(s => s.id !== id));
+      this.sessions.update((list) => list.filter((s) => s.id !== id));
       this.notify.success('Session revoked');
     } catch (e) {
       this.notify.error(e, 'Failed to revoke session');
@@ -272,7 +288,7 @@ export class ProfileComponent implements OnInit {
     this.revokingId.set(id);
     try {
       await this.sessionsService.revokeTrustedDevice(id);
-      this.trustedDevices.update(list => list.filter(d => d.id !== id));
+      this.trustedDevices.update((list) => list.filter((d) => d.id !== id));
       this.notify.success('Device removed');
     } catch (e) {
       this.notify.error(e, 'Failed to remove device');
@@ -303,7 +319,7 @@ export class ProfileComponent implements OnInit {
           qrCodeUrl: string;
           secret: string;
           manualEntryKey?: string;
-        }>(joinApiUrl(this.config.rootUrl, '/api/v1/auth/two-factor/setup'), {})
+        }>(joinApiUrl(this.config.rootUrl, '/api/v1/auth/two-factor/setup'), {}),
       );
       this.totpSetupData.set(data);
     } catch (e) {
@@ -323,7 +339,9 @@ export class ProfileComponent implements OnInit {
 
     this.savingTotp.set(true);
     try {
-      await this.http.post(joinApiUrl(this.config.rootUrl, '/api/v1/auth/two-factor/enable'), { code }).toPromise();
+      await this.http
+        .post(joinApiUrl(this.config.rootUrl, '/api/v1/auth/two-factor/enable'), { code })
+        .toPromise();
       this.totpSetupVisible.set(false);
       this.totpCode.set('');
       this.totpSetupData.set(null);
@@ -346,7 +364,7 @@ export class ProfileComponent implements OnInit {
       successMessage: 'Two-factor authentication disabled',
       action: async () => {
         await firstValueFrom(
-          this.http.post(joinApiUrl(this.config.rootUrl, '/api/v1/auth/two-factor/disable'), {})
+          this.http.post(joinApiUrl(this.config.rootUrl, '/api/v1/auth/two-factor/disable'), {}),
         );
         await this.authFeatureService.fetchCurrentUser();
       },
@@ -356,7 +374,10 @@ export class ProfileComponent implements OnInit {
   async regenerateBackupCodes(): Promise<void> {
     try {
       const data = await firstValueFrom(
-        this.http.post<{ backupCodes: string[] }>(joinApiUrl(this.config.rootUrl, '/api/v1/auth/two-factor/backup-codes/regenerate'), {})
+        this.http.post<{ backupCodes: string[] }>(
+          joinApiUrl(this.config.rootUrl, '/api/v1/auth/two-factor/backup-codes/regenerate'),
+          {},
+        ),
       );
       this.backupCodes.set(data.backupCodes);
       this.backupCodesVisible.set(true);

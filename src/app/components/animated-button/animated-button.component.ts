@@ -1,11 +1,12 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-animated-button',
   imports: [CommonModule],
   templateUrl: './animated-button.component.html',
-  styleUrl: './animated-button.component.css'
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './animated-button.component.css',
 })
 export class AnimatedButtonComponent {
   text = input.required<string>();

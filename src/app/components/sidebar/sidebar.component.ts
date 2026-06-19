@@ -1,4 +1,12 @@
-import { Component, input, model, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  input,
+  model,
+  computed,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -22,7 +30,8 @@ interface NavItem {
   selector: 'app-sidebar',
   imports: [CommonModule, FormsModule, DrawerModule, ToggleSwitchModule],
   templateUrl: './sidebar.component.html',
-  styleUrl: './sidebar.component.css'
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './sidebar.component.css',
 })
 export class SidebarComponent {
   private router = inject(Router);
@@ -89,9 +98,9 @@ export class SidebarComponent {
     this.router.events.pipe(
       filter((e): e is NavigationEnd => e instanceof NavigationEnd),
       map(() => this.router.url),
-      startWith(this.router.url)
+      startWith(this.router.url),
     ),
-    { initialValue: this.router.url }
+    { initialValue: this.router.url },
   );
 
   // Groups the user has manually toggled open.

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -27,6 +27,7 @@ import { CrudListBase } from '../../../shared/crud-list-base';
     SidebarComponent,
   ],
   templateUrl: './backups-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './backups-list.component.css',
 })
 export class BackupsListComponent extends CrudListBase<any> {
@@ -97,7 +98,7 @@ export class BackupsListComponent extends CrudListBase<any> {
   buildQueryParams(
     page: number,
     limit: number,
-    filters: Record<string, unknown>
+    filters: Record<string, unknown>,
   ): Record<string, unknown> {
     const params: Record<string, unknown> = { page, limit };
 

@@ -54,11 +54,11 @@ src/app/features/[feature]/
 - Returns Promises (configured in ng-openapi-gen)
 
 ## Component Generation
-- List component with resource/rxResource using the generated service
-- Form component with Reactive Forms using generated DTOs
+- List component with resource/rxResource (or httpResource for HTTP endpoints) using the generated service
+- Form component with Reactive Forms or Signal Forms (`@angular/forms/signals`) using generated DTOs
 - Detail component with computed signals using generated types
-- All components use PrimeNG v21 styled theming with Pass Through
-- All components use standalone Angular 21 syntax
+- All components use PrimeNG **v21** styled theming with Pass Through (no v22 yet)
+- All components use standalone Angular 22 syntax
 
 ## Type Generation
 - Re-exports TypeScript interfaces from `src/app/api/models/`
@@ -228,10 +228,10 @@ List components extend `CrudListBase<TEntity>` (`src/app/shared/crud-list-base.t
 ## Best Practices Applied
 - Uses generated API services from ng-openapi-gen
 - Uses generated types from OpenAPI spec
-- Resource/rxResource for async operations
+- resource/rxResource/httpResource for async operations (all stable in v22)
 - Signals for loading states
-- Reactive Forms with validation
-- PrimeNG v21 styled theming with Pass Through
+- Reactive Forms or Signal Forms (stable in v22) with validation
+- PrimeNG **v21** styled theming with Pass Through (no v22 yet)
 - styles.css styling tokens
-- Type-safe API calls
-- Standalone components (Angular 21)
+- Type-safe API calls — TypeScript 6 required
+- Standalone components (Angular 22)

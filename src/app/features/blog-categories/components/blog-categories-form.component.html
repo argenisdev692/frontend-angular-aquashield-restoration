@@ -4,11 +4,20 @@
   <app-page-header
     [title]="isEdit() ? 'Edit Category' : 'New Category'"
     subtitle="Manage blog category details"
-    (menuToggle)="drawerVisible.set(true)" />
+    (menuToggle)="drawerVisible.set(true)"
+  />
 
   <div class="form-header">
     <button class="btn btn--ghost" type="button" (click)="onCancel()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+      >
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
       <span>Back</span>
     </button>
     <h1>{{ isEdit() ? 'Edit Category' : 'New Category' }}</h1>
@@ -26,7 +35,8 @@
             pInputText
             formControlName="name"
             placeholder="Enter category name"
-            class="form-input" />
+            class="form-input"
+          />
           @if (form.get('name')?.invalid && form.get('name')?.touched) {
             <span class="field-error">Name is required (min 2 characters)</span>
           }
@@ -41,7 +51,8 @@
             pInputText
             formControlName="description"
             placeholder="Enter category description"
-            class="form-input" />
+            class="form-input"
+          />
         </div>
 
         <!-- Image -->
@@ -50,22 +61,28 @@
           <div class="image-upload">
             @if (form.get('image')?.value) {
               <div class="image-preview">
-                <img [src]="form.get('image')?.value" alt="Category image" />
-                <button
-                  type="button"
-                  class="btn btn--danger btn--sm"
-                  (click)="onDeleteImage()">
+                <img
+                  [src]="$safeNavigationMigration(form.get('image')?.value)"
+                  alt="Category image"
+                />
+                <button type="button" class="btn btn--danger btn--sm" (click)="onDeleteImage()">
                   Remove Image
                 </button>
               </div>
             } @else {
               <label class="image-dropzone">
-                <input
-                  type="file"
-                  accept="image/*"
-                  (change)="onImageChange($event)"
-                  hidden />
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <input type="file" accept="image/*" (change)="onImageChange($event)" hidden />
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
                 <span>Click to upload an image</span>
               </label>
             }

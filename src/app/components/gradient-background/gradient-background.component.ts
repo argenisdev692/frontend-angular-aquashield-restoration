@@ -1,11 +1,20 @@
-import { Component, AfterViewInit, ElementRef, viewChild, inject, PLATFORM_ID } from '@angular/core';
+import {
+  Component,
+  AfterViewInit,
+  ElementRef,
+  viewChild,
+  inject,
+  PLATFORM_ID,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-gradient-background',
   imports: [CommonModule],
   templateUrl: './gradient-background.component.html',
-  styleUrl: './gradient-background.component.css'
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './gradient-background.component.css',
 })
 export class GradientBackgroundComponent implements AfterViewInit {
   stars = viewChild.required<ElementRef<HTMLDivElement>>('stars');

@@ -1,4 +1,4 @@
-import { Component, input, output, HostListener } from '@angular/core';
+import { Component, input, output, HostListener, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { signal, computed } from '@angular/core';
 
@@ -6,7 +6,8 @@ import { signal, computed } from '@angular/core';
   selector: 'app-floating-menu-button',
   imports: [CommonModule],
   templateUrl: './floating-menu-button.component.html',
-  styleUrl: './floating-menu-button.component.css'
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './floating-menu-button.component.css',
 })
 export class FloatingMenuButtonComponent {
   drawerOpen = input<boolean>(false);

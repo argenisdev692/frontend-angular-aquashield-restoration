@@ -1,4 +1,11 @@
-import { Component, computed, inject, resource, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  resource,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -12,6 +19,7 @@ import { CampaignStageExport, statusToneClass } from '../models/campaigns.types'
   standalone: true,
   imports: [CommonModule, DatePipe, PageHeaderComponent, SidebarComponent],
   templateUrl: './campaigns-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './campaigns-detail.component.css',
 })
 export class CampaignsDetailComponent {

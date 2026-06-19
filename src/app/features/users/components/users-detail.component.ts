@@ -1,4 +1,11 @@
-import { Component, inject, signal, computed, resource } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  computed,
+  resource,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -13,6 +20,7 @@ import { SidebarComponent } from '../../../components/sidebar/sidebar.component'
   standalone: true,
   imports: [CommonModule, DatePipe, ButtonModule, TagModule, PageHeaderComponent, SidebarComponent],
   templateUrl: './users-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './users-detail.component.css',
 })
 export class UsersDetailComponent {
@@ -50,11 +58,19 @@ export class UsersDetailComponent {
   }
 
   getRoleNames(): string {
-    return this.user()?.roles.map((r) => r.name).join(', ') ?? 'None';
+    return (
+      this.user()
+        ?.roles.map((r) => r.name)
+        .join(', ') ?? 'None'
+    );
   }
 
   getPermissionNames(): string {
-    return this.user()?.permissions.map((p) => `${p.subject}:${p.action}`).join(', ') ?? 'None';
+    return (
+      this.user()
+        ?.permissions.map((p) => `${p.subject}:${p.action}`)
+        .join(', ') ?? 'None'
+    );
   }
 
   isSuspended(): boolean {

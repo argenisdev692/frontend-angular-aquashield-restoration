@@ -1,4 +1,13 @@
-import { Component, AfterViewInit, OnInit, ElementRef, viewChild, inject, PLATFORM_ID } from '@angular/core';
+import {
+  Component,
+  AfterViewInit,
+  OnInit,
+  ElementRef,
+  viewChild,
+  inject,
+  PLATFORM_ID,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { GradientBackgroundComponent } from './components/gradient-background/gradient-background.component';
@@ -12,7 +21,8 @@ import { CompanyDataService } from './api/services/company-data.service';
   selector: 'app-root',
   imports: [RouterOutlet, GradientBackgroundComponent, NotificationOutletComponent],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './app.css',
 })
 export class App implements OnInit, AfterViewInit {
   protected readonly title = 'Aquashield Restoration LLC Dashboard';
@@ -30,7 +40,8 @@ export class App implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      this.companyDataService.companyDataControllerFindPublic()
+      this.companyDataService
+        .companyDataControllerFindPublic()
         .then((data) => {
           if (data?.companyName) {
             document.title = data.companyName;

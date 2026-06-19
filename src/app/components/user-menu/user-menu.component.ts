@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal } from '@angular/core';
+import { Component, inject, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthFeatureService } from '../../features/auth/services/auth.service';
 
@@ -7,10 +7,11 @@ import { AuthFeatureService } from '../../features/auth/services/auth.service';
   imports: [],
   templateUrl: './user-menu.component.html',
   styleUrl: './user-menu.component.css',
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: {
     '(document:click)': 'close()',
-    '(document:keydown.escape)': 'close()'
-  }
+    '(document:keydown.escape)': 'close()',
+  },
 })
 export class UserMenuComponent {
   private authService = inject(AuthFeatureService);
@@ -35,7 +36,7 @@ export class UserMenuComponent {
   // Stop the trigger click from reaching the document listener (which would re-close it).
   toggle(event: Event): void {
     event.stopPropagation();
-    this.open.update(v => !v);
+    this.open.update((v) => !v);
   }
 
   close(): void {

@@ -1,11 +1,12 @@
-import { Component, input } from '@angular/core';
+import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-dashboard-card',
   imports: [CommonModule],
   templateUrl: './dashboard-card.component.html',
-  styleUrl: './dashboard-card.component.css'
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './dashboard-card.component.css',
 })
 export class DashboardCardComponent {
   title = input.required<string>();
