@@ -1659,6 +1659,56 @@ html {
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* ── Sentiment chips & status badges (shared by list/detail views) ── */
+.sentiment-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: var(--font-medium);
+  background: color-mix(in srgb, var(--text-muted) 12%, transparent);
+  color: var(--text-secondary);
+}
+
+.sentiment-chip-positive {
+  background: color-mix(in srgb, var(--accent-success) 12%, transparent);
+  color: var(--accent-success);
+}
+
+.sentiment-chip-neutral {
+  background: color-mix(in srgb, var(--accent-info) 12%, transparent);
+  color: var(--accent-info);
+}
+
+.sentiment-chip-negative {
+  background: color-mix(in srgb, var(--accent-error) 12%, transparent);
+  color: var(--accent-error);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-active {
+  background: color-mix(in srgb, var(--accent-success) 15%, transparent);
+  color: var(--accent-success);
+  border: 1px solid color-mix(in srgb, var(--accent-success) 25%, transparent);
+}
+
+.status-deleted {
+  background: color-mix(in srgb, var(--accent-error) 15%, transparent);
+  color: var(--accent-error);
+  border: 1px solid color-mix(in srgb, var(--accent-error) 25%, transparent);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .aq-toast,
   .aq-confirm-backdrop,

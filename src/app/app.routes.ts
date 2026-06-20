@@ -65,5 +65,10 @@ export const routes: Routes = [
     loadChildren: () => import('./features/campaigns/campaigns.routes').then((m) => m.campaignsRoutes),
     canActivate: [authGuard],
   },
+  {
+    path: 'retell-calls',
+    loadChildren: () => import('./features/retell-calls/retell-calls.routes').then((m) => m.retellCallsRoutes),
+    canActivate: [authGuard],
+  },
   { path: '', redirectTo: '/login', pathMatch: 'full' }
 ];

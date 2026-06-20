@@ -29,7 +29,7 @@
 
 ## Scaffolding (Claude Code)
 - Rules: `.claude/rules/angular-rules.md` (always-on), `.claude/rules/styles.md` (always-on)
-- Skills: `.claude/skills/ANGULAR-21/SKILL.md` (updated for v22), `.claude/skills/PRIMENG-UNSTYLED/SKILL.md` (PrimeNG **v21** styled theming — no v22 yet), `.claude/skills/ARCHITECTURE-ANGULAR/ARCHITECTURE-ANGULAR.md`, `.claude/skills/OWASP/SKILL.md`
+- Skills: `.claude/skills/ANGULAR-22/SKILL.md`, `.claude/skills/PRIMENG-UNSTYLED/SKILL.md` (PrimeNG **v21** styled theming — no v22 yet), `.claude/skills/ARCHITECTURE-ANGULAR/ARCHITECTURE-ANGULAR.md`, `.claude/skills/OWASP/SKILL.md`
 - Commands: `.claude/commands/ANGULAR-NEW.md`, `.claude/commands/ANGULAR-MODULE-FROM-API.md`, `.claude/commands/ANGULAR-AUDIT.md`
 - Settings: `.claude/settings.json`
 

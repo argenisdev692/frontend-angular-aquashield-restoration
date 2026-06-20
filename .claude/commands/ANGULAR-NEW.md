@@ -37,13 +37,19 @@ export class [ComponentName]Component {
   // Services — use @Service() for new singletons
   private readonly service = inject(ServiceName);
 
+  // Routed components: bind route params as signal inputs — NEVER route.snapshot
+  // (withComponentInputBinding() is enabled in app.config.ts)
+  readonly id = input.required<string>();
+
   // State
   private readonly state = signal<StateType>(initialState);
 
-  // Derived state (prefer computed over ngOnInit for reactive setup)
+  // Derived state — ALWAYS computed(), never a method called from the template
   readonly computedValue = computed(() => this.state().property);
 }
 ```
+
+> Add `input` to the `@angular/core` import when the component is routed.
 
 ## Service Template (v22 — prefer @Service decorator)
 ```typescript
@@ -65,3 +71,9 @@ export class [FeatureName]Service {
 - Prefers `@Service()` over `@Injectable({ providedIn: 'root' })` for new services
 - Follows styles.css styling conventions and PrimeNG **v21** styled theming (no v22 yet)
 - Signal Forms (`@angular/forms/signals`) for new forms — stable in v22
+- Routed components read route params via `input.required<string>()`, never `route.snapshot`
+- All template-derived state is a `computed()` signal, never a method called from the template
+- Every async action handles failure with a `NotificationService` toast (`.catch(...)`); no silent `.then()`
+- No `any`/`@ts-ignore`/`as unknown as X` — use `unknown` + narrowing
+- Icon-only buttons get `aria-label`; decorative SVGs get `aria-hidden="true"`; media gets `aria-label`
+- Shared presentational classes (chips/badges) live in `styles.css`, never duplicated across component CSS files

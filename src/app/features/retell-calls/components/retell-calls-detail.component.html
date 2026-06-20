@@ -1,0 +1,154 @@
+<app-sidebar [visible]="drawerVisible()" (visibleChange)="drawerVisible.set($event)"></app-sidebar>
+
+<div class="call-page">
+  <app-page-header
+    [title]="title()"
+    subtitle="Retell AI voice call detail"
+    (menuToggle)="drawerVisible.set(true)" />
+
+  <div class="detail-header">
+    <button class="btn btn--ghost" type="button" (click)="onBack()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <span>Back to Call Records</span>
+    </button>
+    <div class="detail-actions">
+      @if (isDeleted()) {
+        <button class="btn btn--success" type="button" (click)="onRestore()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          <span>Restore</span>
+        </button>
+      } @else {
+        <button class="btn btn--danger" type="button" (click)="onDelete()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          <span>Delete</span>
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (call(); as c) {
+    <div class="card-modern detail-card">
+      <div class="detail-hero">
+        <div class="hero-info">
+          <h2>{{ title() }}</h2>
+          <span class="meta">{{ c.callStatus ?? 'Unknown status' }}</span>
+          <div class="hero-badges">
+            @if (isDeleted()) {
+              <span class="status-badge status-deleted">Deleted</span>
+            } @else {
+              <span class="status-badge status-active">Active</span>
+            }
+            @if (c.userSentiment) {
+              <span [class]="sentimentClass()">{{ c.userSentiment }}</span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-section">
+          <h3>Call</h3>
+          <div class="detail-row">
+            <span class="label">Direction</span>
+            <span class="value">{{ c.direction ?? '—' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">From</span>
+            <span class="value">{{ c.fromNumber ?? '—' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">To</span>
+            <span class="value">{{ c.toNumber ?? '—' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Call Type</span>
+            <span class="value">{{ c.callType ?? '—' }}</span>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Outcome</h3>
+          <div class="detail-row">
+            <span class="label">Call Status</span>
+            <span class="value">{{ c.callStatus ?? '—' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Disconnection</span>
+            <span class="value">{{ c.disconnectionReason ?? '—' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Duration</span>
+            <span class="value">{{ duration() }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Read</span>
+            <span class="value">{{ c.isRead ? 'Yes' : 'No' }}</span>
+          </div>
+        </div>
+
+        <div class="detail-section detail-section--full">
+          <h3>Timing</h3>
+          <div class="detail-row">
+            <span class="label">Started</span>
+            <span class="value">{{ c.startedAt ? (c.startedAt | date:'medium') : '—' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Ended</span>
+            <span class="value">{{ c.endedAt ? (c.endedAt | date:'medium') : '—' }}</span>
+          </div>
+        </div>
+
+        @if (c.callSummary) {
+          <div class="detail-section detail-section--full">
+            <h3>Summary</h3>
+            <p class="summary-text">{{ c.callSummary }}</p>
+          </div>
+        }
+
+        @if (c.recordingUrl) {
+          <div class="detail-section detail-section--full">
+            <h3>Recording</h3>
+            <audio class="recording" controls [src]="c.recordingUrl" aria-label="Call recording"></audio>
+          </div>
+        }
+
+        @if (c.transcript) {
+          <div class="detail-section detail-section--full">
+            <div class="section-head">
+              <h3>Transcript</h3>
+              <button class="btn btn--ghost btn--sm" type="button" (click)="onCopyTranscript()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+            @defer (on viewport) {
+              <pre class="transcript">{{ c.transcript }}</pre>
+            } @placeholder {
+              <pre class="transcript">Loading transcript…</pre>
+            }
+          </div>
+        }
+
+        <div class="detail-section detail-section--full">
+          <h3>Record</h3>
+          <div class="detail-row">
+            <span class="label">Call ID</span>
+            <span class="value">{{ c.callId }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Agent ID</span>
+            <span class="value">{{ c.agentId ?? '—' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Created</span>
+            <span class="value">{{ c.createdAt | date:'medium' }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Updated</span>
+            <span class="value">{{ c.updatedAt | date:'medium' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

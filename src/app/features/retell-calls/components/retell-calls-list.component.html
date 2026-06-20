@@ -1,0 +1,178 @@
+<app-sidebar [visible]="drawerVisible()" (visibleChange)="drawerVisible.set($event)"></app-sidebar>
+
+<div class="calls-page">
+  <app-page-header
+    title="Call Records"
+    subtitle="Retell AI voice call history"
+    (menuToggle)="drawerVisible.set(true)" />
+
+  <app-advanced-filter
+    searchPlaceholder="Search calls..."
+    [fields]="filterFields"
+    createLabel="Sync"
+    [showExportCsv]="true"
+    (filtersChange)="onFiltersChange($event)"
+    (create)="onSync()"
+    (exportPdf)="onExportPdf()"
+    (exportExcel)="onExportExcel()"
+    (exportCsv)="onExportCsv()" />
+
+  @if (supportsBulk && hasSelection()) {
+    <div class="bulk-actions-bar">
+      <span class="bulk-count">{{ selectedCount() }} selected</span>
+      <div class="bulk-actions">
+        @if (supportsBulkDelete && hasSelectedActive()) {
+          <button class="btn-bulk btn-bulk-delete" type="button" (click)="onBulkDelete()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Delete selected
+          </button>
+        }
+        @if (supportsBulkRestore && hasSelectedTrashed()) {
+          <button class="btn-bulk btn-bulk-restore" type="button" (click)="onBulkRestore()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            Restore selected
+          </button>
+        }
+        <button class="btn-bulk btn-bulk-clear" type="button" (click)="clearSelection()">Clear</button>
+      </div>
+    </div>
+  }
+
+  <div class="card-modern table-card">
+    <p-table
+      [value]="calls()"
+      [loading]="isLoading()"
+      [paginator]="false"
+      [rows]="limit()"
+      [totalRecords]="total()"
+      [tableStyle]="{ 'min-width': '100%' }"
+      styleClass="crud-table">
+      <ng-template pTemplate="header">
+        <tr>
+          @if (supportsBulk) {
+            <th class="select-col">
+              <input
+                type="checkbox"
+                class="crud-checkbox"
+                [checked]="allSelected()"
+                [indeterminate]="someSelected()"
+                (change)="toggleSelectAll()"
+                aria-label="Select all" />
+            </th>
+          }
+          @for (col of tableColumns; track col.field) {
+            <th>{{ col.header }}</th>
+          }
+          <th class="actions-header">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-call>
+        <tr [class.deleted]="isTrashed(call)" [class.row-selected]="isSelected(call.id)">
+          @if (supportsBulk) {
+            <td class="select-col">
+              <input
+                type="checkbox"
+                class="crud-checkbox"
+                [checked]="isSelected(call.id)"
+                (change)="toggleSelect(call.id)"
+                [attr.aria-label]="'Select call ' + call.callId" />
+            </td>
+          }
+          <td>
+            <div class="cell-name">
+              @if (!call.isRead) {
+                <span class="unread-dot" title="Unread"></span>
+              }
+              <span class="name-text">{{ direction(call) }}</span>
+              @if (isTrashed(call)) {
+                <span class="status-badge status-deleted">Deleted</span>
+              }
+            </div>
+          </td>
+          <td>{{ call.fromNumber ?? '—' }}</td>
+          <td>{{ call.toNumber ?? '—' }}</td>
+          <td>{{ call.callStatus ?? '—' }}</td>
+          <td>
+            @if (call.userSentiment) {
+              <span [class]="sentimentClass(call)">{{ call.userSentiment }}</span>
+            } @else {
+              <span class="text-muted">—</span>
+            }
+          </td>
+          <td>{{ duration(call) }}</td>
+          <td>{{ call.startedAt ? (call.startedAt | date:'medium') : '—' }}</td>
+          <td>
+            <div class="actions-cell">
+              <button
+                class="btn-crud-action btn-crud-action-view"
+                type="button"
+                (click)="onView(call.id)"
+                title="View"
+                aria-label="View call">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+              @if (!call.isRead && !isTrashed(call)) {
+                <button
+                  class="btn-crud-action btn-crud-action-edit"
+                  type="button"
+                  (click)="onMarkRead(call.id)"
+                  title="Mark as read"
+                  aria-label="Mark call as read">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
+                </button>
+              }
+              @if (isTrashed(call)) {
+                <button
+                  class="btn-crud-action btn-crud-action-restore"
+                  type="button"
+                  (click)="onRestore(call.id)"
+                  title="Restore"
+                  aria-label="Restore call">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                </button>
+              } @else {
+                <button
+                  class="btn-crud-action btn-crud-action-delete"
+                  type="button"
+                  (click)="onDelete(call.id)"
+                  title="Delete"
+                  aria-label="Delete call">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+              }
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td [attr.colspan]="tableColumns.length + (supportsBulk ? 2 : 1)" class="empty-cell">
+            @if (hasError()) {
+              <div class="crud-error-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+                <p>{{ errorMessage() }}</p>
+                <button class="btn btn--primary" type="button" (click)="callsResource.reload()">Retry</button>
+              </div>
+            } @else {
+              <div class="crud-empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                <p>No call records found</p>
+                <span>Try syncing or adjusting your filters</span>
+              </div>
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <p-paginator
+      [rows]="limit()"
+      [totalRecords]="total()"
+      [first]="((page() - 1) * limit())"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      (onPageChange)="onPageChange($event)"
+      styleClass="modern-paginator" />
+  </div>
+</div>

@@ -56,9 +56,10 @@ src/app/features/[feature]/
 ## Component Generation
 - List component with resource/rxResource (or httpResource for HTTP endpoints) using the generated service
 - Form component with Reactive Forms or Signal Forms (`@angular/forms/signals`) using generated DTOs
-- Detail component with computed signals using generated types
+- Detail component reads its `:id` via `input.required<string>()` (NOT `route.snapshot`) and exposes all template-derived state as `computed()` signals
 - All components use PrimeNG **v21** styled theming with Pass Through (no v22 yet)
 - All components use standalone Angular 22 syntax
+- See **Mandatory Angular 22 Rules** below — they are enforced by `/ANGULAR-AUDIT`
 
 ## Type Generation
 - Re-exports TypeScript interfaces from `src/app/api/models/`
@@ -68,12 +69,12 @@ src/app/features/[feature]/
 ## Example Output
 ```typescript
 // service wrapper
-import { Injectable } from '@angular/core';
-import { inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { UsersService } from '../../api/services/users.service';
 import { UserResponse, CreateUserDto, UpdateUserDto } from '../../api/models';
 
-@Injectable({ providedIn: 'root' })
+// v22: use @Service() for new singletons — NOT @Injectable({ providedIn: 'root' })
+@Service()
 export class UsersFeatureService {
   private usersService = inject(UsersService);
 
@@ -115,14 +116,14 @@ export class UsersFeatureService {
 }
 
 // list component
-import { ChangeDetectionStrategy, Component, inject, resource } from '@angular/core';
+import { Component, inject, resource } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { UsersFeatureService } from '../services/users.service';
 
 @Component({
   selector: 'app-users-list',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  // No changeDetection — OnPush is the v22 default; setting it is redundant
   imports: [TableModule, ButtonModule], // no CommonModule — control flow is built in
   template: `
     <div class="card-modern p-4">
@@ -224,6 +225,77 @@ List components extend `CrudListBase<TEntity>` (`src/app/shared/crud-list-base.t
 3. **Empty-state colspan** must account for the selection column:
    `[attr.colspan]="tableColumns.length + (supportsBulk ? 2 : 1)"`
 4. Styling uses the shared `.crud-checkbox`, `.select-col`, `.bulk-actions-bar`, `.btn-bulk*` tokens in `styles.css` — never hardcode checkbox styling.
+
+## Mandatory Angular 22 Rules (enforce in every generated file)
+
+These are non-negotiable. The audit checklist (`/ANGULAR-AUDIT`) flags any violation.
+
+### Components
+- **NEVER** set `changeDetection: ChangeDetectionStrategy.OnPush` — it is the v22 default. Do not import `ChangeDetectionStrategy` just to set it.
+- **NEVER** write `standalone: true` (default in v22).
+- Use `inject()`, `input()`/`output()`, signals, native control flow (`@if`/`@for`/`@switch`).
+- **Detail components: read route params with a signal input, NOT `route.snapshot`.**
+  `withComponentInputBinding()` is enabled in `app.config.ts`, so:
+  ```typescript
+  readonly id = input.required<string>();
+  readonly entityResource = resource({
+    params: () => this.id(),
+    loader: ({ params }) => this.service.getById(params),
+  });
+  ```
+- **All template-derived state in a detail component is a `computed()`**, not a method
+  (`title`, `duration`, `isDeleted`, badge/chip class, …). Per-row helpers in a *list*
+  that take a row argument (e.g. `duration(row)`) stay methods — they can't be `computed`.
+
+### Services
+- Use `@Service()` (NOT `@Injectable({ providedIn: 'root' })`) for new feature services.
+- **Every async action must handle failure** with a `NotificationService` toast — including
+  exports and side-effect calls (e.g. `markRead`). A silent `.then()` is a bug:
+  ```typescript
+  this.api.export({ ...this.buildExportParams(), format: 'csv' })
+    .then((blob) => this.downloadBlob(blob, `${this.entityName}.csv`))
+    .catch((error) => this.notify.error(error, 'Export failed'));
+  ```
+- When the generated client discards a binary/non-JSON body (export endpoints typically
+  return `responseType: 'text'`/`void`), GET the blob directly via `HttpClient`
+  (`responseType: 'blob'`); the auth interceptor still attaches the in-memory Bearer token.
+
+### Types — no `any`
+- `extractItems`/`extractTotal` overrides MUST be typed to the paginated envelope, not `any`.
+  The base declares `(response: any)`, but a narrower override is allowed by method-parameter
+  bivariance:
+  ```typescript
+  extractItems(response: EntityListResponse | undefined): EntityResponse[] {
+    return response?.data ?? [];
+  }
+  extractTotal(response: EntityListResponse | undefined): number {
+    return response?.total ?? 0;
+  }
+  ```
+- Never `any`/`@ts-ignore`/`as unknown as X` — use `unknown` + narrowing.
+
+### Read-only / external-source resources (e.g. Retell calls)
+- Routes are list + detail only (no `form` component, no create/edit). Repurpose the
+  `advanced-filter` "create" slot for a domain action (e.g. **Sync**) and wire it to your
+  own handler, not `onCreate()`.
+
+### Styling
+- Presentational token classes shared by list **and** detail (sentiment chips, status
+  badges, etc.) live in **`styles.css`** — never duplicate the same block in two component
+  CSS files. Only layout that's unique to one component belongs in its `.css`.
+- No hex values; use `var(--token)`. Class/style bindings, never `ngClass`/`ngStyle`.
+
+### Accessibility
+- Icon-only buttons get an `aria-label` (in addition to `title`); decorative inline SVGs
+  get `aria-hidden="true"`.
+- Media elements (`<audio>`/`<video>`) get an `aria-label`.
+
+### Testing (Vitest)
+- A required signal input cannot be set on a `new`-constructed instance. Use
+  `TestBed.createComponent` + `componentRef.setInput('id', …)`. If rendering the template
+  pulls in heavy children (sidebar → ThemeService → localStorage), blank the template for
+  the test: `TestBed.overrideComponent(Cmp, { set: { template: '', imports: [] } })` and
+  assert on the class logic only.
 
 ## Best Practices Applied
 - Uses generated API services from ng-openapi-gen
