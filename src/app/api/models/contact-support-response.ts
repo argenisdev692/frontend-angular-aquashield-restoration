@@ -7,10 +7,10 @@ export interface ContactSupportResponse {
   email: string;
   firstName: string;
   id: string;
+  isRead: boolean;
   lastName: string;
   message: string;
   phone: string;
-  readed: boolean;
   smsConsent: boolean;
   subject: string;
   updatedAt: string;

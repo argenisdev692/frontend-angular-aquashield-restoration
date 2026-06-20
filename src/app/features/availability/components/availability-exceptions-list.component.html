@@ -1,0 +1,128 @@
+<app-sidebar [visible]="drawerVisible()" (visibleChange)="drawerVisible.set($event)"></app-sidebar>
+
+<div class="availability-page">
+  <app-page-header
+    title="Availability Exceptions"
+    subtitle="Manage holidays and closures that override the weekly schedule"
+    (menuToggle)="drawerVisible.set(true)" />
+
+  <div class="page-tabs">
+    <a class="page-tab page-tab--active" routerLink="/availability/exceptions">Exceptions</a>
+    <a class="page-tab" routerLink="/availability/rules">Weekly Rules</a>
+  </div>
+
+  <app-advanced-filter
+    searchPlaceholder="Search exceptions..."
+    [fields]="filterFields"
+    (filtersChange)="onFiltersChange($event)"
+    (create)="onCreate()"
+    [showExportPdf]="false"
+    [showExportCsv]="true"
+    (exportExcel)="onExportExcel()"
+    (exportCsv)="onExportCsv()" />
+
+  <div class="card-modern table-card">
+    <p-table
+      [value]="exceptions()"
+      [loading]="isLoading()"
+      [paginator]="false"
+      [rows]="limit()"
+      [totalRecords]="total()"
+      [tableStyle]="{ 'min-width': '100%' }"
+      styleClass="crud-table">
+      <ng-template pTemplate="header">
+        <tr>
+          @for (col of tableColumns; track col.field) {
+            <th>{{ col.header }}</th>
+          }
+          <th class="actions-header">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-exception>
+        <tr [class.deleted]="isTrashed(exception)">
+          <td>{{ exception.date | date:'mediumDate':'UTC' }}</td>
+          <td>
+            @if (exception.isAvailable) {
+              <span class="avail-chip avail-chip-open">Available</span>
+            } @else {
+              <span class="avail-chip avail-chip-closed">Closed</span>
+            }
+          </td>
+          <td>{{ exception.reason ?? '—' }}</td>
+          <td>
+            @if (isTrashed(exception)) {
+              <span class="status-badge status-deleted">Deleted</span>
+            } @else {
+              <span class="status-badge status-active">Active</span>
+            }
+          </td>
+          <td>{{ exception.createdAt | date:'mediumDate' }}</td>
+          <td>
+            <div class="actions-cell">
+              <button
+                class="btn-crud-action btn-crud-action-view"
+                type="button"
+                (click)="onView(exception.id)"
+                title="View">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+              <button
+                class="btn-crud-action btn-crud-action-edit"
+                type="button"
+                (click)="onEdit(exception)"
+                title="Edit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              @if (isTrashed(exception)) {
+                <button
+                  class="btn-crud-action btn-crud-action-restore"
+                  type="button"
+                  (click)="onRestore(exception.id)"
+                  title="Restore">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                </button>
+              } @else {
+                <button
+                  class="btn-crud-action btn-crud-action-delete"
+                  type="button"
+                  (click)="onDelete(exception.id)"
+                  title="Delete">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+              }
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td [attr.colspan]="tableColumns.length + (supportsBulk ? 2 : 1)" class="empty-cell">
+            @if (hasError()) {
+              <div class="crud-error-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+                <p>{{ errorMessage() }}</p>
+                <button class="btn btn--primary" type="button" (click)="exceptionsResource.reload()">Retry</button>
+              </div>
+            } @else {
+              <div class="crud-empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                <p>No exceptions found</p>
+                <span>Try adjusting your filters or add a holiday/closure</span>
+              </div>
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <p-paginator
+      [rows]="limit()"
+      [totalRecords]="total()"
+      [first]="((page() - 1) * limit())"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      (onPageChange)="onPageChange($event)"
+      styleClass="modern-paginator" />
+  </div>
+</div>

@@ -13,7 +13,7 @@ export interface ContactSupportControllerFindOne$Params {
   id: string;
 
 /**
- * When `true`, return the request even if it has been soft-deleted.
+ * When `true`, return the request even if it has been soft-deleted. Requires `Action.Restore`.
  */
   withTrashed?: boolean;
 }

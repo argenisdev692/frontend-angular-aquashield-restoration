@@ -2,6 +2,7 @@ import { inject, signal, computed, resource, effect } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { NotificationService } from './notifications/notification.service';
 
 export interface CrudService<TEntity, TCreate, TUpdate> {
   getById(id: string): Promise<TEntity>;
@@ -14,6 +15,7 @@ export abstract class CrudFormBase<TEntity, TCreate, TUpdate> {
   protected route = inject(ActivatedRoute);
   protected router = inject(Router);
   protected location = inject(Location);
+  protected notify = inject(NotificationService);
 
   abstract get service(): CrudService<TEntity, TCreate, TUpdate>;
   abstract buildForm(): FormGroup;
@@ -56,6 +58,7 @@ export abstract class CrudFormBase<TEntity, TCreate, TUpdate> {
       : this.service.create(this.toCreateDto(this.form.value));
     promise
       .then(() => this.router.navigate([this.listRoute]))
+      .catch((error) => this.notify.error(error, 'Failed to save'))
       .finally(() => this.isSubmitting.set(false));
   }
 

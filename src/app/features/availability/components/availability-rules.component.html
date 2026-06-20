@@ -1,0 +1,61 @@
+<app-sidebar [visible]="drawerVisible()" (visibleChange)="drawerVisible.set($event)"></app-sidebar>
+
+<div class="availability-page">
+  <app-page-header
+    title="Weekly Availability"
+    subtitle="Set the default open hours for each day of the week"
+    (menuToggle)="drawerVisible.set(true)" />
+
+  <div class="page-tabs">
+    <a class="page-tab" routerLink="/availability/exceptions">Exceptions</a>
+    <a class="page-tab page-tab--active" routerLink="/availability/rules">Weekly Rules</a>
+  </div>
+
+  <div class="card-modern rules-card">
+    @for (row of rows(); track row.dayOfWeek) {
+      <div class="rule-row" [class.rule-row--closed]="!row.isAvailable">
+        <div class="rule-day">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              class="crud-checkbox"
+              [checked]="row.isAvailable"
+              (change)="setAvailable(row.dayOfWeek, $event)" />
+            <span class="day-name">{{ row.label }}</span>
+          </label>
+        </div>
+
+        <div class="rule-times">
+          @if (row.isAvailable) {
+            <input
+              type="time"
+              class="form-input time-input"
+              [value]="row.startTime"
+              (change)="setStart(row.dayOfWeek, $event)"
+              [attr.aria-label]="row.label + ' opening time'" />
+            <span class="time-sep">—</span>
+            <input
+              type="time"
+              class="form-input time-input"
+              [value]="row.endTime"
+              (change)="setEnd(row.dayOfWeek, $event)"
+              [attr.aria-label]="row.label + ' closing time'" />
+          } @else {
+            <span class="closed-label">Closed</span>
+          }
+        </div>
+
+        <button
+          class="btn btn--primary btn--sm"
+          type="button"
+          [disabled]="savingDay() === row.dayOfWeek"
+          (click)="saveRow(row.dayOfWeek)">
+          @if (savingDay() === row.dayOfWeek) {
+            <span class="spinner"></span>
+          }
+          Save
+        </button>
+      </div>
+    }
+  </div>
+</div>

@@ -12,7 +12,7 @@ import { ContactSupportListResponse } from '../../models/contact-support-list-re
 export interface ContactSupportControllerList$Params {
   page?: number;
   limit?: number;
-  readed?: 'true' | 'false';
+  isRead?: 'true' | 'false';
 
 /**
  * Include soft-deleted requests (Laravel `withTrashed()`).
@@ -40,7 +40,7 @@ export function contactSupportControllerList(http: HttpClient, rootUrl: string, 
   if (params) {
     rb.query('page', params.page, {});
     rb.query('limit', params.limit, {});
-    rb.query('readed', params.readed, {});
+    rb.query('isRead', params.isRead, {});
     rb.query('withTrashed', params.withTrashed, {});
     rb.query('onlyTrashed', params.onlyTrashed, {});
     rb.query('start_date', params.start_date, {});

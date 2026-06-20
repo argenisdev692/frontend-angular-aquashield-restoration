@@ -68,6 +68,7 @@ export class SidebarComponent {
       label: 'Leads & Support',
       children: [
         { icon: 'pi pi-calendar', label: 'Appointments', route: '/appointments' },
+        { icon: 'pi pi-clock', label: 'Availability', route: '/availability' },
         { icon: 'pi pi-envelope', label: 'Contact & Support', route: '/contact-support' },
       ],
     },

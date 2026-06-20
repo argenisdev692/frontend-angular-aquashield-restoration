@@ -21,6 +21,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'availability',
+    loadChildren: () => import('./features/availability/availability.routes').then((m) => m.availabilityRoutes),
+    canActivate: [authGuard],
+  },
+  {
     path: 'blog-categories',
     loadChildren: () => import('./features/blog-categories/blog-categories.routes').then((m) => m.blogCategoriesRoutes),
     canActivate: [authGuard],

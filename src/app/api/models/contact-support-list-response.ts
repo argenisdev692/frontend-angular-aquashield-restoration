@@ -11,7 +11,7 @@ export interface ContactSupportListResponse {
 'subject': string;
 'message': string;
 'smsConsent': boolean;
-'readed': boolean;
+'isRead': boolean;
 'createdAt': string;
 'updatedAt': string;
 'deletedAt': string | null;

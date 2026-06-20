@@ -59,6 +59,7 @@
   --accent-primary: #00B5E2;
   --accent-secondary: #0091C7;
   --on-accent: #04222F; /* text/icon color to use ON aqua surfaces */
+  --text-on-primary: #ffffff; /* text/icon color ON the primary gradient button */
   --accent-success: #10b981;
   --accent-success-dark: #059669;
   --accent-warning: #f59e0b;

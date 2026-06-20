@@ -1,0 +1,62 @@
+<app-sidebar [visible]="drawerVisible()" (visibleChange)="drawerVisible.set($event)"></app-sidebar>
+
+<div class="availability-page">
+  <app-page-header
+    [title]="isEdit() ? 'Edit Exception' : 'New Exception'"
+    subtitle="Define a holiday or closure that overrides the weekly schedule"
+    (menuToggle)="drawerVisible.set(true)" />
+
+  <div class="form-header">
+    <button class="btn btn--ghost" type="button" (click)="onCancel()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <span>Back</span>
+    </button>
+    <h1>{{ isEdit() ? 'Edit Exception' : 'New Exception' }}</h1>
+  </div>
+
+  <div class="card-modern form-card">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <!-- Date -->
+        <div class="form-field">
+          <label for="date">Date <span class="required">*</span></label>
+          <input id="date" type="date" formControlName="date" class="form-input" />
+          @if (form.get('date')?.invalid && form.get('date')?.touched) {
+            <span class="field-error">Date is required</span>
+          }
+        </div>
+
+        <!-- Availability -->
+        <div class="form-field form-field--checkbox">
+          <label class="checkbox-label" for="isAvailable">
+            <input id="isAvailable" type="checkbox" class="crud-checkbox" formControlName="isAvailable" />
+            <span>Available on this date</span>
+          </label>
+          <span class="field-hint">Leave unchecked for a holiday / closure.</span>
+        </div>
+
+        <!-- Reason -->
+        <div class="form-field form-field--full">
+          <label for="reason">Reason</label>
+          <input
+            id="reason"
+            type="text"
+            pInputText
+            formControlName="reason"
+            placeholder="e.g. Public holiday, Staff training"
+            class="form-input" />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn--ghost" type="button" (click)="onCancel()">Cancel</button>
+        <button class="btn btn--primary" type="submit" [disabled]="isSubmitting()">
+          @if (isSubmitting()) {
+            <span class="spinner"></span>
+          }
+          {{ isEdit() ? 'Update Exception' : 'Create Exception' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -32,7 +32,7 @@ export class AppointmentsDetailComponent {
     loader: async () => {
       const appointment = await this.service.getById(this.appointmentId());
       // Opening the detail marks the lead as read (fire-and-forget).
-      if (!appointment.readed && appointment.deletedAt === null) {
+      if (!appointment.isRead && appointment.deletedAt === null) {
         this.service.markRead(appointment.id).catch(() => undefined);
       }
       return appointment;

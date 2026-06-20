@@ -13,7 +13,7 @@
     </button>
     <div class="detail-actions">
       @if (request(); as r) {
-        @if (!r.readed && !isDeleted()) {
+        @if (!r.isRead && !isDeleted()) {
           <button class="btn btn--ghost" type="button" (click)="onMarkAsRead()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
             <span>Mark as read</span>
@@ -45,7 +45,7 @@
           <span class="email">{{ r.email }}</span>
         </div>
         <div class="hero-badges">
-          @if (r.readed) {
+          @if (r.isRead) {
             <span class="status-badge status-read">Read</span>
           } @else {
             <span class="status-badge status-unread">Unread</span>

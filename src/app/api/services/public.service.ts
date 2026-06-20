@@ -10,8 +10,11 @@ import { ApiConfiguration } from '../api-configuration';
 import { StrictHttpResponse } from '../strict-http-response';
 
 import { CreateAppointmentResponse } from '../models/create-appointment-response';
+import { CreateContactSupportResponse } from '../models/create-contact-support-response';
 import { publicAppointmentsControllerSubmit } from '../fn/public/public-appointments-controller-submit';
 import { PublicAppointmentsControllerSubmit$Params } from '../fn/public/public-appointments-controller-submit';
+import { publicContactSupportControllerSubmit } from '../fn/public/public-contact-support-controller-submit';
+import { PublicContactSupportControllerSubmit$Params } from '../fn/public/public-contact-support-controller-submit';
 
 @Injectable({ providedIn: 'root' })
 export class PublicService extends BaseService {
@@ -42,6 +45,31 @@ export class PublicService extends BaseService {
   publicAppointmentsControllerSubmit(params: PublicAppointmentsControllerSubmit$Params, context?: HttpContext): Promise<CreateAppointmentResponse> {
     const resp = this.publicAppointmentsControllerSubmit$Response(params, context);
     return resp.then((r: StrictHttpResponse<CreateAppointmentResponse>): CreateAppointmentResponse => r.body);
+  }
+
+  /** Path part for operation `publicContactSupportControllerSubmit()` */
+  static readonly PublicContactSupportControllerSubmitPath = '/api/v1/public/contact-support';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `publicContactSupportControllerSubmit()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  publicContactSupportControllerSubmit$Response(params: PublicContactSupportControllerSubmit$Params, context?: HttpContext): Promise<StrictHttpResponse<CreateContactSupportResponse>> {
+    const obs = publicContactSupportControllerSubmit(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `publicContactSupportControllerSubmit$Response()` instead.
+   *
+   * This method sends `application/json` and handles request body of type `application/json`.
+   */
+  publicContactSupportControllerSubmit(params: PublicContactSupportControllerSubmit$Params, context?: HttpContext): Promise<CreateContactSupportResponse> {
+    const resp = this.publicContactSupportControllerSubmit$Response(params, context);
+    return resp.then((r: StrictHttpResponse<CreateContactSupportResponse>): CreateContactSupportResponse => r.body);
   }
 
 }

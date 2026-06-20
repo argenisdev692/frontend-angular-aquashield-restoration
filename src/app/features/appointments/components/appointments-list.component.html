@@ -82,7 +82,7 @@
           }
           <td>
             <div class="cell-name">
-              @if (!appointment.readed) {
+              @if (!appointment.isRead) {
                 <span class="unread-dot" title="Unread"></span>
               }
               <span class="name-text">{{ fullName(appointment) }}</span>
@@ -111,7 +111,7 @@
                 title="View">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
-              @if (!appointment.readed && !isTrashed(appointment)) {
+              @if (!appointment.isRead && !isTrashed(appointment)) {
                 <button
                   class="btn-crud-action btn-crud-action-edit"
                   type="button"

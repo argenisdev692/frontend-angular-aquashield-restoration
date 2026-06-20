@@ -10,7 +10,7 @@ import { RequestBuilder } from '../../request-builder';
 
 export interface ContactSupportControllerExport$Csv$Params {
   format?: 'csv' | 'pdf';
-  readed?: 'true' | 'false';
+  isRead?: 'true' | 'false';
 
 /**
  * Include soft-deleted requests in the export.
@@ -37,7 +37,7 @@ export function contactSupportControllerExport$Csv(http: HttpClient, rootUrl: st
   const rb = new RequestBuilder(rootUrl, contactSupportControllerExport$Csv.PATH, 'get');
   if (params) {
     rb.query('format', params.format, {});
-    rb.query('readed', params.readed, {});
+    rb.query('isRead', params.isRead, {});
     rb.query('withTrashed', params.withTrashed, {});
     rb.query('onlyTrashed', params.onlyTrashed, {});
     rb.query('start_date', params.start_date, {});

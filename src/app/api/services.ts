@@ -21,3 +21,6 @@ export { PostsService } from './services/posts.service';
 export { SocialMediaService } from './services/social-media.service';
 export { CampaignsService } from './services/campaigns.service';
 export { ActivityLogsService } from './services/activity-logs.service';
+export { RetellCallsService } from './services/retell-calls.service';
+export { AvailabilityAdminService } from './services/availability-admin.service';
+export { AvailabilityPublicService } from './services/availability-public.service';

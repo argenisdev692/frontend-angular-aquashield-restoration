@@ -73,7 +73,7 @@
         <tr
           [class.deleted]="isDeleted(request)"
           [class.row-selected]="isSelected(request.id)"
-          [class.row-unread]="!request.readed && !isDeleted(request)">
+          [class.row-unread]="!request.isRead && !isDeleted(request)">
           @if (supportsBulk) {
             <td class="select-col">
               <input
@@ -95,7 +95,7 @@
           <td>{{ request.email ?? '—' }}</td>
           <td>{{ request.subject ?? '—' }}</td>
           <td>
-            @if (request.readed) {
+            @if (request.isRead) {
               <span class="status-badge status-read">Read</span>
             } @else {
               <span class="status-badge status-unread">Unread</span>
@@ -111,7 +111,7 @@
                 title="View">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
-              @if (!request.readed && !isDeleted(request)) {
+              @if (!request.isRead && !isDeleted(request)) {
                 <button
                   class="btn-crud-action btn-crud-action-edit"
                   type="button"
