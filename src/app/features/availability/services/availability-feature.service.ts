@@ -12,6 +12,12 @@ import {
   UpdateExceptionDto,
   UpsertRuleDto,
 } from '../models/availability.types';
+import {
+  TimeSlot,
+  DayAvailability,
+  parseTimeSlots,
+  parseCalendar,
+} from '../models/booking.schemas';
 
 export type AvailabilityExportFormat = 'csv' | 'xlsx';
 
@@ -38,6 +44,39 @@ export class AvailabilityFeatureService {
 
   private get base(): string {
     return `${this.apiConfig.rootUrl}/api/v1/availability`;
+  }
+
+  private get publicBase(): string {
+    return `${this.apiConfig.rootUrl}/api/v1/public/availability`;
+  }
+
+  // ── Public booking reads (raw HttpClient: generated client discards the body) ──
+  /**
+   * Day-level availability for a month (`month` is 1=Jan … 12=Dec). Each entry's
+   * `available` flag already factors in weekly rules and date exceptions; past
+   * days come back `available: false` (reason `'past'`).
+   */
+  async getCalendar(year: number, month: number): Promise<DayAvailability[]> {
+    const params = new HttpParams().set('year', String(year)).set('month', String(month));
+    const data = await firstValueFrom(
+      this.http.get<unknown>(`${this.publicBase}/calendar`, { params })
+    );
+    return parseCalendar(data);
+  }
+
+  /**
+   * 30-minute-step inspection start slots for a date. `serviceDuration` is in
+   * minutes (15–480); the backend excludes slots blocked by holidays, weekly
+   * rules, or existing appointments (±7h buffer).
+   */
+  async getTimeSlots(date: string, serviceDuration: number): Promise<TimeSlot[]> {
+    const params = new HttpParams()
+      .set('date', date)
+      .set('serviceDuration', String(serviceDuration));
+    const data = await firstValueFrom(
+      this.http.get<unknown>(`${this.publicBase}/time-slots`, { params })
+    );
+    return parseTimeSlots(data);
   }
 
   // ── Exceptions: list (CrudListBase reads `getAll`) ──

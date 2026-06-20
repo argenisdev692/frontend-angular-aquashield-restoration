@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Service, inject } from '@angular/core';
 import { AppointmentsService } from '../../../api/services/appointments.service';
 import {
   AppointmentResponse,
@@ -17,7 +17,7 @@ export interface AppointmentExportParams {
   format?: AppointmentExportFormat;
 }
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class AppointmentsFeatureService {
   private api = inject(AppointmentsService);
 

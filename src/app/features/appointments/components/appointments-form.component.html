@@ -196,6 +196,70 @@
             class="form-input" />
         </div>
 
+        <!-- Inspection scheduling -->
+        <div class="form-field form-field--full inspection-block">
+          <div class="inspection-head">
+            <label>Inspection Schedule</label>
+            @if (selectedDate()) {
+              <button type="button" class="btn-link-clear" (click)="clearInspection()">Clear</button>
+            }
+          </div>
+          <p class="field-hint">
+            Pick an available day, then a start time. Inspections run 7 hours and must finish by
+            3:00&nbsp;PM, so only early-morning starts are offered, and a booked day is fully blocked.
+          </p>
+
+          <div class="inspection-grid">
+            <div class="calendar-pane">
+              <p-datepicker
+                [inline]="true"
+                [ngModel]="selectedDate()"
+                [ngModelOptions]="{ standalone: true }"
+                [minDate]="minDate"
+                [disabledDates]="disabledDates()"
+                (onSelect)="onDateSelected($event)"
+                (onMonthChange)="onMonthChange($event)"
+                styleClass="inspection-calendar" />
+            </div>
+
+            <div class="slots-pane">
+              @if (!selectedDate()) {
+                <p class="slots-empty">Select a date to see available start times.</p>
+              } @else if (slotsResource.isLoading()) {
+                <p class="slots-empty">Loading times…</p>
+              } @else if (slotsResource.error()) {
+                <p class="slots-empty slots-error">
+                  Couldn’t load times.
+                  <button type="button" class="btn btn--ghost" (click)="slotsResource.reload()">Retry</button>
+                </p>
+              } @else if (slots().length === 0) {
+                <p class="slots-empty">No available times for this date.</p>
+              } @else {
+                <div class="slots-list" role="listbox" aria-label="Available start times">
+                  @for (slot of slots(); track slot.time) {
+                    <button
+                      type="button"
+                      role="option"
+                      class="slot-chip"
+                      [class.slot-chip--selected]="slot.time === selectedSlotIso()"
+                      [attr.aria-selected]="slot.time === selectedSlotIso()"
+                      (click)="onSlotSelected(slot)">
+                      {{ slot.formattedTime }}
+                    </button>
+                  }
+                </div>
+              }
+
+              @if (selectedSlotLabel()) {
+                <p class="slot-selected-label">Selected start: <strong>{{ selectedSlotLabel() }}</strong></p>
+              }
+              @if (form.errors?.['inspectionTimeRequired'] && form.get('inspectionTime')?.touched) {
+                <span class="field-error">Please choose a start time for the selected date.</span>
+              }
+            </div>
+          </div>
+        </div>
+
         <!-- SMS Consent -->
         <div class="form-field form-field--checkbox">
           <label class="checkbox-label" for="smsConsent">

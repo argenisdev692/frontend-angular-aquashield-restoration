@@ -2,14 +2,17 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
+  input,
   signal,
   computed,
+  effect,
   resource,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 
 import { AppointmentsFeatureService } from '../services/appointments-feature.service';
+import { ConfirmService } from '../../../shared/notifications/confirm.service';
 import { PageHeaderComponent } from '../../../components/page-header/page-header.component';
 import { SidebarComponent } from '../../../components/sidebar/sidebar.component';
 
@@ -22,40 +25,67 @@ import { SidebarComponent } from '../../../components/sidebar/sidebar.component'
 })
 export class AppointmentsDetailComponent {
   private service = inject(AppointmentsFeatureService);
-  private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private confirm = inject(ConfirmService);
+
+  /** Route param bound via `withComponentInputBinding()` (route is `:id`). */
+  readonly id = input.required<string>();
 
   readonly drawerVisible = signal(false);
-  readonly appointmentId = signal<string>(this.route.snapshot.params['id']);
 
   readonly appointmentResource = resource({
-    loader: async () => {
-      const appointment = await this.service.getById(this.appointmentId());
-      // Opening the detail marks the lead as read (fire-and-forget).
-      if (!appointment.isRead && appointment.deletedAt === null) {
-        this.service.markRead(appointment.id).catch(() => undefined);
-      }
-      return appointment;
-    },
+    params: () => this.id(),
+    loader: ({ params }) => this.service.getById(params),
   });
 
   readonly appointment = computed(() => this.appointmentResource.value());
   readonly isLoading = computed(() => this.appointmentResource.isLoading());
 
+  // Mark the lead as read once it loads (fire-and-forget side effect kept out of
+  // the resource loader). Guard by id so a reload/restore doesn't re-fire it.
+  private markedReadId: string | null = null;
+
+  constructor() {
+    effect(() => {
+      const a = this.appointment();
+      if (a && !a.isRead && a.deletedAt === null && this.markedReadId !== a.id) {
+        this.markedReadId = a.id;
+        this.service.markRead(a.id).catch(() => undefined);
+      }
+    });
+  }
+
   onEdit(): void {
-    this.router.navigate(['/appointments', this.appointmentId(), 'edit']);
+    this.router.navigate(['/appointments', this.id(), 'edit']);
   }
 
   onDelete(): void {
-    if (!confirm('Are you sure you want to delete this appointment?')) return;
-    this.service.delete(this.appointmentId()).then(() => {
-      this.router.navigate(['/appointments']);
+    this.confirm.confirm({
+      variant: 'danger',
+      title: 'Delete appointment',
+      message: 'Are you sure you want to delete this appointment? You can restore it later.',
+      confirmLabel: 'Delete',
+      busyLabel: 'Deleting…',
+      successMessage: 'Appointment deleted',
+      action: async () => {
+        await this.service.delete(this.id());
+        this.router.navigate(['/appointments']);
+      },
     });
   }
 
   onRestore(): void {
-    this.service.restore(this.appointmentId()).then(() => {
-      this.appointmentResource.reload();
+    this.confirm.confirm({
+      variant: 'success',
+      title: 'Restore appointment',
+      message: 'Restore this appointment?',
+      confirmLabel: 'Restore',
+      busyLabel: 'Restoring…',
+      successMessage: 'Appointment restored',
+      action: async () => {
+        await this.service.restore(this.id());
+        this.appointmentResource.reload();
+      },
     });
   }
 

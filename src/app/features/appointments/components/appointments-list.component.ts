@@ -11,7 +11,7 @@ import {
 import { PageHeaderComponent } from '../../../components/page-header/page-header.component';
 import { SidebarComponent } from '../../../components/sidebar/sidebar.component';
 import { CrudListBase } from '../../../shared/crud-list-base';
-import { AppointmentResponse } from '../../../api/models';
+import { AppointmentResponse, AppointmentListResponse } from '../../../api/models';
 
 @Component({
   selector: 'app-appointments-list',
@@ -129,11 +129,11 @@ export class AppointmentsListComponent extends CrudListBase<AppointmentResponse>
     return params;
   }
 
-  extractItems(response: any): AppointmentResponse[] {
+  extractItems(response: AppointmentListResponse | undefined): AppointmentResponse[] {
     return response?.data ?? [];
   }
 
-  extractTotal(response: any): number {
+  extractTotal(response: AppointmentListResponse | undefined): number {
     return response?.total ?? 0;
   }
 
@@ -152,8 +152,22 @@ export class AppointmentsListComponent extends CrudListBase<AppointmentResponse>
 
   // Mark an unread lead as read from the list. Guarded in the template so it
   // only fires when the appointment is not already read (and not trashed).
+  // Optimistic: flip `isRead` locally for instant feedback (zoneless/signal),
+  // then revert and surface a toast if the request fails — no full refetch.
   onMarkRead(id: string): void {
-    this.api.markRead(id).then(() => this.dataResource.reload());
+    const snapshot = this.dataResource.value();
+    this.dataResource.value.update((resp) => {
+      const list = resp as AppointmentListResponse | undefined;
+      if (!list?.data) return resp;
+      return {
+        ...list,
+        data: list.data.map((row) => (row.id === id ? { ...row, isRead: true } : row)),
+      };
+    });
+    this.api.markRead(id).catch((error) => {
+      this.dataResource.value.set(snapshot);
+      this.notify.error(error, 'Failed to mark as read');
+    });
   }
 
   leadStatusClass(appointment: AppointmentResponse): string {
