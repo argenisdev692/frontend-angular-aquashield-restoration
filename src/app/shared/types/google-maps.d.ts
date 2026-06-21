@@ -4,6 +4,12 @@ declare namespace google {
       interface AutocompleteOptions {
         types?: string[];
         fields?: string[];
+        componentRestrictions?: { country: string | string[] };
+      }
+      interface AddressComponent {
+        long_name: string;
+        short_name: string;
+        types: string[];
       }
       class Autocomplete {
         constructor(input: HTMLInputElement, opts?: AutocompleteOptions);
@@ -12,6 +18,8 @@ declare namespace google {
       }
       interface PlaceResult {
         formatted_address?: string;
+        address_components?: AddressComponent[];
+        name?: string;
         geometry?: {
           location?: {
             lat(): number;

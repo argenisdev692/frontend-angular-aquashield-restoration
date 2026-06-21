@@ -25,6 +25,7 @@ import { CreateUserDto, UpdateUserDto, UserResponse } from '../../../api/models'
 import { PageHeaderComponent } from '../../../components/page-header/page-header.component';
 import { SidebarComponent } from '../../../components/sidebar/sidebar.component';
 import { CrudFormBase } from '../../../shared/crud-form-base';
+import { PhoneFormatDirective } from '../../../shared/directives/phone-format.directive';
 
 function asyncEmailValidator(service: UsersFeatureService, excludeId?: string) {
   return (control: AbstractControl): Promise<ValidationErrors | null> => {
@@ -51,6 +52,7 @@ function asyncEmailValidator(service: UsersFeatureService, excludeId?: string) {
     ButtonModule,
     PageHeaderComponent,
     SidebarComponent,
+    PhoneFormatDirective,
   ],
   templateUrl: './users-form.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

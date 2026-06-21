@@ -97,6 +97,8 @@ describe('AppointmentsFormComponent', () => {
       state: 'TX',
       zipcode: '77001',
       country: 'USA',
+      latitude: null,
+      longitude: null,
       statusLead: 'New',
       owner: '',
       registrationDate: '',

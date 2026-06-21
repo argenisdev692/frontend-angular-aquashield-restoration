@@ -1,7 +1,20 @@
 import { Injectable, signal } from '@angular/core';
 
-const GOOGLE_MAPS_API_KEY = (typeof import.meta !== 'undefined' && (import.meta as any).env?.['NG_APP_GOOGLE_MAPS_API_KEY']) || '';
+interface ImportMetaEnv {
+  readonly [key: string]: string | undefined;
+}
 
+const GOOGLE_MAPS_API_KEY =
+  (typeof import.meta !== 'undefined' &&
+    (import.meta as unknown as { env?: ImportMetaEnv }).env?.['NG_APP_GOOGLE_MAPS_API_KEY']) ||
+  '';
+
+/**
+ * Lazily injects the Google Maps JS SDK (`places` library) exactly once and
+ * shares the load across every consumer (address autocomplete in
+ * appointments, company-data, …). Safe to call repeatedly — concurrent
+ * callers await the same in-flight load.
+ */
 @Injectable({ providedIn: 'root' })
 export class GoogleMapsLoaderService {
   private loaded = signal(false);
@@ -12,7 +25,7 @@ export class GoogleMapsLoaderService {
     if (this.loading()) {
       // Wait for existing load
       while (this.loading()) {
-        await new Promise(r => setTimeout(r, 50));
+        await new Promise((r) => setTimeout(r, 50));
       }
       return this.loaded();
     }
@@ -25,7 +38,9 @@ export class GoogleMapsLoaderService {
     this.loading.set(true);
 
     return new Promise((resolve) => {
-      const existing = document.querySelector('script[data-google-maps]') as HTMLScriptElement | null;
+      const existing = document.querySelector(
+        'script[data-google-maps]',
+      ) as HTMLScriptElement | null;
       if (existing) {
         existing.addEventListener('load', () => {
           this.loaded.set(true);

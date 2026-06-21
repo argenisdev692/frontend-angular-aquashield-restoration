@@ -58,8 +58,9 @@
             id="phone"
             type="tel"
             pInputText
+            appPhoneFormat
             formControlName="phone"
-            placeholder="+1 (555) 000-0000"
+            placeholder="(555) 000 0000"
             class="form-input"
             [attr.aria-invalid]="form.get('phone')?.invalid && form.get('phone')?.touched"
             aria-describedby="phone-err" />
@@ -85,18 +86,28 @@
           }
         </div>
 
-        <!-- Address -->
+        <!-- Address (Google Maps autocomplete) -->
         <div class="form-field">
           <label for="address">Address <span class="required">*</span></label>
           <input
             id="address"
             type="text"
             pInputText
+            appAddressAutocomplete
             formControlName="address"
-            placeholder="Street address"
+            placeholder="Start typing to search…"
             class="form-input"
+            (placeSelected)="onPlaceSelected($event)"
+            (mapsLoadingChange)="mapsLoading.set($event)"
+            (mapsErrored)="mapsError.set($event)"
             [attr.aria-invalid]="form.get('address')?.invalid && form.get('address')?.touched"
             aria-describedby="address-err" />
+          @if (mapsLoading()) {
+            <span class="field-hint"><i class="pi pi-spin pi-spinner"></i> Loading maps…</span>
+          }
+          @if (mapsError()) {
+            <span class="field-error">{{ mapsError() }}</span>
+          }
           @if (form.get('address')?.invalid && form.get('address')?.touched) {
             <span id="address-err" class="field-error">Address is required</span>
           }
@@ -122,8 +133,9 @@
             type="text"
             pInputText
             formControlName="city"
-            placeholder="City"
+            placeholder="Autofilled from address"
             class="form-input"
+            [readonly]="true"
             [attr.aria-invalid]="form.get('city')?.invalid && form.get('city')?.touched"
             aria-describedby="city-err" />
           @if (form.get('city')?.invalid && form.get('city')?.touched) {
@@ -139,8 +151,9 @@
             type="text"
             pInputText
             formControlName="state"
-            placeholder="State"
+            placeholder="Autofilled from address"
             class="form-input"
+            [readonly]="true"
             [attr.aria-invalid]="form.get('state')?.invalid && form.get('state')?.touched"
             aria-describedby="state-err" />
           @if (form.get('state')?.invalid && form.get('state')?.touched) {
@@ -156,8 +169,9 @@
             type="text"
             pInputText
             formControlName="zipcode"
-            placeholder="Zipcode"
+            placeholder="Autofilled from address"
             class="form-input"
+            [readonly]="true"
             [attr.aria-invalid]="form.get('zipcode')?.invalid && form.get('zipcode')?.touched"
             aria-describedby="zipcode-err" />
           @if (form.get('zipcode')?.invalid && form.get('zipcode')?.touched) {
@@ -173,13 +187,40 @@
             type="text"
             pInputText
             formControlName="country"
-            placeholder="Country"
+            placeholder="Autofilled from address"
             class="form-input"
+            [readonly]="true"
             [attr.aria-invalid]="form.get('country')?.invalid && form.get('country')?.touched"
             aria-describedby="country-err" />
           @if (form.get('country')?.invalid && form.get('country')?.touched) {
             <span id="country-err" class="field-error">Country is required</span>
           }
+        </div>
+
+        <!-- Latitude (autofilled, read-only) -->
+        <div class="form-field">
+          <label for="latitude">Latitude</label>
+          <input
+            id="latitude"
+            type="text"
+            pInputText
+            formControlName="latitude"
+            placeholder="Autofilled from address"
+            class="form-input"
+            [readonly]="true" />
+        </div>
+
+        <!-- Longitude (autofilled, read-only) -->
+        <div class="form-field">
+          <label for="longitude">Longitude</label>
+          <input
+            id="longitude"
+            type="text"
+            pInputText
+            formControlName="longitude"
+            placeholder="Autofilled from address"
+            class="form-input"
+            [readonly]="true" />
         </div>
 
         <!-- Lead Status -->

@@ -126,8 +126,8 @@
         <div class="field-row">
           <div class="field-col">
             <label class="form-label" for="phone">Phone</label>
-            <input id="phone" class="form-input" [ngModel]="phone()" (ngModelChange)="phone.set($event)"
-              placeholder="+1 305 ..." />
+            <input id="phone" class="form-input" appPhoneFormat [ngModel]="phone()" (ngModelChange)="phone.set($event)"
+              placeholder="(305) 000 0000" />
           </div>
           <div class="field-col">
             <label class="form-label" for="website">Website</label>

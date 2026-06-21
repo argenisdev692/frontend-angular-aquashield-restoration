@@ -21,6 +21,11 @@ import {
 import { PageHeaderComponent } from '../../../components/page-header/page-header.component';
 import { SidebarComponent } from '../../../components/sidebar/sidebar.component';
 import { CrudFormBase } from '../../../shared/crud-form-base';
+import { PhoneFormatDirective } from '../../../shared/directives/phone-format.directive';
+import {
+  AddressAutocompleteDirective,
+  PlaceSelection,
+} from '../../../shared/directives/address-autocomplete.directive';
 
 type LeadStatus = NonNullable<CreateAppointmentDto['statusLead']>;
 
@@ -36,6 +41,8 @@ interface AppointmentFormValue {
   state: string;
   zipcode: string;
   country: string;
+  latitude: number | null;
+  longitude: number | null;
   statusLead: LeadStatus;
   owner: string;
   registrationDate: string;
@@ -63,6 +70,8 @@ const BUSINESS_TZ = 'America/Chicago';
     DatePickerModule,
     PageHeaderComponent,
     SidebarComponent,
+    PhoneFormatDirective,
+    AddressAutocompleteDirective,
   ],
   templateUrl: './appointments-form.component.html',
   styleUrl: './appointments-form.component.css',
@@ -78,6 +87,10 @@ export class AppointmentsFormComponent extends CrudFormBase<
   readonly drawerVisible = signal(false);
 
   readonly leadStatusOptions: LeadStatus[] = ['New', 'Called', 'Pending', 'Declined'];
+
+  // ── Address autocomplete state ──
+  readonly mapsLoading = signal(false);
+  readonly mapsError = signal<string | null>(null);
 
   // ── Inspection scheduling state ──
   /** Day bound to the inline calendar; drives the time-slot query. */
@@ -144,6 +157,8 @@ export class AppointmentsFormComponent extends CrudFormBase<
         state: ['', [Validators.required]],
         zipcode: ['', [Validators.required]],
         country: ['', [Validators.required]],
+        latitude: [null as number | null],
+        longitude: [null as number | null],
         statusLead: ['New' as LeadStatus],
         owner: [''],
         registrationDate: [''],
@@ -170,6 +185,8 @@ export class AppointmentsFormComponent extends CrudFormBase<
       state: entity.state,
       zipcode: entity.zipcode,
       country: entity.country,
+      latitude: entity.latitude ?? null,
+      longitude: entity.longitude ?? null,
       statusLead: entity.statusLead && entity.statusLead !== 'null' ? entity.statusLead : 'New',
       owner: entity.owner ?? '',
       registrationDate: entity.registrationDate?.split('T')[0] ?? '',
@@ -202,6 +219,8 @@ export class AppointmentsFormComponent extends CrudFormBase<
       state: v.state,
       zipcode: v.zipcode,
       country: v.country,
+      latitude: v.latitude,
+      longitude: v.longitude,
       statusLead: v.statusLead,
       owner: v.owner || null,
       registrationDate: v.registrationDate || null,
@@ -220,6 +239,19 @@ export class AppointmentsFormComponent extends CrudFormBase<
 
   get listRoute(): string {
     return '/appointments';
+  }
+
+  // ── Address autocomplete ──
+  onPlaceSelected(place: PlaceSelection): void {
+    this.form.patchValue({
+      address: place.address,
+      city: place.city,
+      state: place.state,
+      zipcode: place.zipcode,
+      country: place.country,
+      latitude: place.latitude,
+      longitude: place.longitude,
+    });
   }
 
   // ── Booking interactions ──

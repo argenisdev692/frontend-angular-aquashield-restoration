@@ -90,6 +90,12 @@
   color: var(--text-muted);
 }
 
+.form-input:read-only {
+  background: var(--input-bg-disabled);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
 .form-textarea {
   height: auto;
   min-height: var(--input-height);

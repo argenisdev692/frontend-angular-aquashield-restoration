@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { PhoneFormatDirective } from '../../shared/directives/phone-format.directive';
 import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -48,6 +49,7 @@ import { FloatingMenuButtonComponent } from '../../components/floating-menu-butt
     ImageCropperDialogComponent,
     FloatingMenuButtonComponent,
     DialogModule,
+    PhoneFormatDirective,
   ],
   templateUrl: './profile.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,

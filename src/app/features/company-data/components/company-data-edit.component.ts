@@ -25,7 +25,8 @@ import {
   CompanyDataFeatureService,
   UpdateCompanyDataDto,
 } from '../services/company-data-feature.service';
-import { GoogleMapsLoaderService } from '../services/google-maps-loader.service';
+import { GoogleMapsLoaderService } from '../../../shared/services/google-maps-loader.service';
+import { PhoneFormatDirective } from '../../../shared/directives/phone-format.directive';
 import { CompanyDataResponse } from '../../../api/models/company-data-response';
 
 @Component({
@@ -41,6 +42,7 @@ import { CompanyDataResponse } from '../../../api/models/company-data-response';
     FormSubmitButtonComponent,
     FloatingMenuButtonComponent,
     SignaturePadComponent,
+    PhoneFormatDirective,
   ],
   template: `
     <app-sidebar
@@ -120,7 +122,7 @@ import { CompanyDataResponse } from '../../../api/models/company-data-response';
                   </div>
                   <div class="form-field">
                     <label for="phone">Phone</label>
-                    <input pInputText id="phone" [(ngModel)]="editForm.phone" class="form-input" />
+                    <input pInputText id="phone" appPhoneFormat [(ngModel)]="editForm.phone" class="form-input" />
                   </div>
                 </div>
 

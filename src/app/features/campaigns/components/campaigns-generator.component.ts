@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { CampaignsFeatureService } from '../services/campaigns-feature.service';
 import { PageHeaderComponent } from '../../../components/page-header/page-header.component';
 import { SidebarComponent } from '../../../components/sidebar/sidebar.component';
+import { PhoneFormatDirective } from '../../../shared/directives/phone-format.directive';
 import {
   AI_PROVIDERS,
   CampaignAiProvider,
@@ -24,7 +25,7 @@ import {
   selector: 'app-campaigns-generator',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, PageHeaderComponent, SidebarComponent],
+  imports: [CommonModule, FormsModule, PageHeaderComponent, SidebarComponent, PhoneFormatDirective],
   templateUrl: './campaigns-generator.component.html',
   styleUrl: './campaigns-generator.component.css',
 })
