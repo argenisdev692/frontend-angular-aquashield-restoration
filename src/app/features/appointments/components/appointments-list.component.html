@@ -108,7 +108,8 @@
                 class="btn-crud-action btn-crud-action-view"
                 type="button"
                 (click)="onView(appointment.id)"
-                title="View">
+                title="View"
+                [attr.aria-label]="'View ' + fullName(appointment)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               </button>
               @if (!appointment.isRead && !isTrashed(appointment)) {
@@ -116,7 +117,8 @@
                   class="btn-crud-action btn-crud-action-edit"
                   type="button"
                   (click)="onMarkRead(appointment.id)"
-                  title="Mark as read">
+                  title="Mark as read"
+                  [attr.aria-label]="'Mark ' + fullName(appointment) + ' as read'">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
                 </button>
               }
@@ -124,7 +126,8 @@
                 class="btn-crud-action btn-crud-action-edit"
                 type="button"
                 (click)="onEdit(appointment)"
-                title="Edit">
+                title="Edit"
+                [attr.aria-label]="'Edit ' + fullName(appointment)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               </button>
               @if (isTrashed(appointment)) {
@@ -132,7 +135,8 @@
                   class="btn-crud-action btn-crud-action-restore"
                   type="button"
                   (click)="onRestore(appointment.id)"
-                  title="Restore">
+                  title="Restore"
+                  [attr.aria-label]="'Restore ' + fullName(appointment)">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
                 </button>
               } @else {
@@ -140,7 +144,8 @@
                   class="btn-crud-action btn-crud-action-delete"
                   type="button"
                   (click)="onDelete(appointment.id)"
-                  title="Delete">
+                  title="Delete"
+                  [attr.aria-label]="'Delete ' + fullName(appointment)">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 </button>
               }

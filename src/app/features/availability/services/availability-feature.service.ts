@@ -54,10 +54,19 @@ export class AvailabilityFeatureService {
   /**
    * Day-level availability for a month (`month` is 1=Jan … 12=Dec). Each entry's
    * `available` flag already factors in weekly rules and date exceptions; past
-   * days come back `available: false` (reason `'past'`).
+   * days come back `available: false` (reason `'past'`). When `serviceDuration`
+   * (minutes) is supplied, rule-open days fully consumed by existing
+   * appointments (±7h buffer) also come back `available: false` (reason `'full'`).
    */
-  async getCalendar(year: number, month: number): Promise<DayAvailability[]> {
-    const params = new HttpParams().set('year', String(year)).set('month', String(month));
+  async getCalendar(
+    year: number,
+    month: number,
+    serviceDuration?: number
+  ): Promise<DayAvailability[]> {
+    let params = new HttpParams().set('year', String(year)).set('month', String(month));
+    if (serviceDuration != null) {
+      params = params.set('serviceDuration', String(serviceDuration));
+    }
     const data = await firstValueFrom(
       this.http.get<unknown>(`${this.publicBase}/calendar`, { params })
     );

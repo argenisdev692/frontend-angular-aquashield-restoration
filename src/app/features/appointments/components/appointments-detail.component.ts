@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   inject,
   input,
@@ -18,7 +17,6 @@ import { SidebarComponent } from '../../../components/sidebar/sidebar.component'
 
 @Component({
   selector: 'app-appointments-detail',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe, PageHeaderComponent, SidebarComponent],
   templateUrl: './appointments-detail.component.html',
   styleUrl: './appointments-detail.component.css',

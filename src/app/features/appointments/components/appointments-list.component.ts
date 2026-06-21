@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { PaginatorModule } from 'primeng/paginator';
@@ -15,7 +15,6 @@ import { AppointmentResponse, AppointmentListResponse } from '../../../api/model
 
 @Component({
   selector: 'app-appointments-list',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
     TableModule,
@@ -190,18 +189,21 @@ export class AppointmentsListComponent extends CrudListBase<AppointmentResponse>
   override onExportPdf(): void {
     this.api
       .export({ ...this.buildExportParams(), format: 'pdf' })
-      .then((blob) => this.downloadBlob(blob, 'appointments.pdf'));
+      .then((blob) => this.downloadBlob(blob, 'appointments.pdf'))
+      .catch((error) => this.notify.error(error, 'Export failed'));
   }
 
   override onExportExcel(): void {
     this.api
       .export({ ...this.buildExportParams(), format: 'xlsx' })
-      .then((blob) => this.downloadBlob(blob, 'appointments.xlsx'));
+      .then((blob) => this.downloadBlob(blob, 'appointments.xlsx'))
+      .catch((error) => this.notify.error(error, 'Export failed'));
   }
 
   override onExportCsv(): void {
     this.api
       .export({ ...this.buildExportParams(), format: 'csv' })
-      .then((blob) => this.downloadBlob(blob, 'appointments.csv'));
+      .then((blob) => this.downloadBlob(blob, 'appointments.csv'))
+      .catch((error) => this.notify.error(error, 'Export failed'));
   }
 }

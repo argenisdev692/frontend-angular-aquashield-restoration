@@ -50,8 +50,8 @@ export abstract class CrudListBase<TEntity> {
     limit: number,
     filters: Record<string, unknown>
   ): Record<string, unknown>;
-  abstract extractItems(response: any): TEntity[];
-  abstract extractTotal(response: any): number;
+  abstract extractItems(response: unknown): TEntity[];
+  abstract extractTotal(response: unknown): number;
 
   readonly drawerVisible = signal(false);
   readonly page = signal(1);
@@ -87,7 +87,7 @@ export abstract class CrudListBase<TEntity> {
   readonly hasError = computed(() => this.dataResource.status() === 'error');
   readonly errorMessage = computed(() => {
     if (this.dataResource.status() !== 'error') return null;
-    const err = this.dataResource.error() as any;
+    const err = this.dataResource.error() as { status?: number } | undefined;
     if (err?.status === 401) return 'Session expired. Please log in again.';
     return 'Failed to load data. Please try again.';
   });
@@ -338,7 +338,8 @@ export abstract class CrudListBase<TEntity> {
     const filters = this.filterParams();
     const status = filters['status'] as string | undefined;
     if (status === 'active') return { withTrashed: false };
-    if (status && status !== 'all') return { onlyTrashed: true };
+    if (status === 'all') return { withTrashed: true };
+    if (status) return { onlyTrashed: true };
     return {};
   }
 

@@ -15,6 +15,11 @@ export interface ContactSupportControllerList$Params {
   isRead?: 'true' | 'false';
 
 /**
+ * Soft-delete visibility (canonical). `suspended`/`all` require `Action.Restore`. Cannot be combined with withTrashed/onlyTrashed.
+ */
+  status?: 'active' | 'suspended' | 'all';
+
+/**
  * Include soft-deleted requests (Laravel `withTrashed()`).
  */
   withTrashed?: (boolean | 'true' | 'false');
@@ -41,6 +46,7 @@ export function contactSupportControllerList(http: HttpClient, rootUrl: string, 
     rb.query('page', params.page, {});
     rb.query('limit', params.limit, {});
     rb.query('isRead', params.isRead, {});
+    rb.query('status', params.status, {});
     rb.query('withTrashed', params.withTrashed, {});
     rb.query('onlyTrashed', params.onlyTrashed, {});
     rb.query('start_date', params.start_date, {});

@@ -63,6 +63,10 @@ export class AppointmentsFeatureService {
     return this.api.appointmentsControllerBulkRestore({ body: dto });
   }
 
+  // PDF/XLSX endpoints respond with `responseType: 'blob'`, so the generated
+  // client already resolves a real Blob. The CSV endpoint responds with
+  // `responseType: 'text'`, so the client resolves a plain string — wrap it in a
+  // Blob before download (mirrors ContactSupportFeatureService).
   export(params?: AppointmentExportParams): Promise<Blob> {
     const { format = 'pdf', ...filters } = params ?? {};
     if (format === 'xlsx') {
@@ -71,7 +75,9 @@ export class AppointmentsFeatureService {
       ) as Promise<Blob>;
     }
     if (format === 'csv') {
-      return this.api.appointmentsControllerExport$Csv({ ...filters, format }) as Promise<Blob>;
+      return this.api
+        .appointmentsControllerExport$Csv({ ...filters, format })
+        .then((text) => new Blob([text as string], { type: 'text/csv;charset=utf-8;' }));
     }
     return this.api.appointmentsControllerExport$Pdf({ ...filters, format }) as Promise<Blob>;
   }

@@ -26,9 +26,11 @@
             pInputText
             formControlName="firstName"
             placeholder="Enter first name"
-            class="form-input" />
+            class="form-input"
+            [attr.aria-invalid]="form.get('firstName')?.invalid && form.get('firstName')?.touched"
+            aria-describedby="firstName-err" />
           @if (form.get('firstName')?.invalid && form.get('firstName')?.touched) {
-            <span class="field-error">First name is required (min 2 characters)</span>
+            <span id="firstName-err" class="field-error">First name is required (min 2 characters)</span>
           }
         </div>
 
@@ -41,9 +43,11 @@
             pInputText
             formControlName="lastName"
             placeholder="Enter last name"
-            class="form-input" />
+            class="form-input"
+            [attr.aria-invalid]="form.get('lastName')?.invalid && form.get('lastName')?.touched"
+            aria-describedby="lastName-err" />
           @if (form.get('lastName')?.invalid && form.get('lastName')?.touched) {
-            <span class="field-error">Last name is required (min 2 characters)</span>
+            <span id="lastName-err" class="field-error">Last name is required (min 2 characters)</span>
           }
         </div>
 
@@ -56,9 +60,11 @@
             pInputText
             formControlName="phone"
             placeholder="+1 (555) 000-0000"
-            class="form-input" />
+            class="form-input"
+            [attr.aria-invalid]="form.get('phone')?.invalid && form.get('phone')?.touched"
+            aria-describedby="phone-err" />
           @if (form.get('phone')?.invalid && form.get('phone')?.touched) {
-            <span class="field-error">Phone is required</span>
+            <span id="phone-err" class="field-error">Phone is required</span>
           }
         </div>
 
@@ -71,9 +77,11 @@
             pInputText
             formControlName="email"
             placeholder="client@example.com"
-            class="form-input" />
+            class="form-input"
+            [attr.aria-invalid]="form.get('email')?.invalid && form.get('email')?.touched"
+            aria-describedby="email-err" />
           @if (form.get('email')?.invalid && form.get('email')?.touched) {
-            <span class="field-error">Invalid email format</span>
+            <span id="email-err" class="field-error">Invalid email format</span>
           }
         </div>
 
@@ -86,9 +94,11 @@
             pInputText
             formControlName="address"
             placeholder="Street address"
-            class="form-input" />
+            class="form-input"
+            [attr.aria-invalid]="form.get('address')?.invalid && form.get('address')?.touched"
+            aria-describedby="address-err" />
           @if (form.get('address')?.invalid && form.get('address')?.touched) {
-            <span class="field-error">Address is required</span>
+            <span id="address-err" class="field-error">Address is required</span>
           }
         </div>
 
@@ -113,9 +123,11 @@
             pInputText
             formControlName="city"
             placeholder="City"
-            class="form-input" />
+            class="form-input"
+            [attr.aria-invalid]="form.get('city')?.invalid && form.get('city')?.touched"
+            aria-describedby="city-err" />
           @if (form.get('city')?.invalid && form.get('city')?.touched) {
-            <span class="field-error">City is required</span>
+            <span id="city-err" class="field-error">City is required</span>
           }
         </div>
 
@@ -128,9 +140,11 @@
             pInputText
             formControlName="state"
             placeholder="State"
-            class="form-input" />
+            class="form-input"
+            [attr.aria-invalid]="form.get('state')?.invalid && form.get('state')?.touched"
+            aria-describedby="state-err" />
           @if (form.get('state')?.invalid && form.get('state')?.touched) {
-            <span class="field-error">State is required</span>
+            <span id="state-err" class="field-error">State is required</span>
           }
         </div>
 
@@ -143,9 +157,11 @@
             pInputText
             formControlName="zipcode"
             placeholder="Zipcode"
-            class="form-input" />
+            class="form-input"
+            [attr.aria-invalid]="form.get('zipcode')?.invalid && form.get('zipcode')?.touched"
+            aria-describedby="zipcode-err" />
           @if (form.get('zipcode')?.invalid && form.get('zipcode')?.touched) {
-            <span class="field-error">Zipcode is required</span>
+            <span id="zipcode-err" class="field-error">Zipcode is required</span>
           }
         </div>
 
@@ -158,9 +174,11 @@
             pInputText
             formControlName="country"
             placeholder="Country"
-            class="form-input" />
+            class="form-input"
+            [attr.aria-invalid]="form.get('country')?.invalid && form.get('country')?.touched"
+            aria-describedby="country-err" />
           @if (form.get('country')?.invalid && form.get('country')?.touched) {
-            <span class="field-error">Country is required</span>
+            <span id="country-err" class="field-error">Country is required</span>
           }
         </div>
 
@@ -209,6 +227,7 @@
             3:00&nbsp;PM, so only early-morning starts are offered, and a booked day is fully blocked.
           </p>
 
+          @defer (on viewport) {
           <div class="inspection-grid">
             <div class="calendar-pane">
               <p-datepicker
@@ -258,6 +277,11 @@
               }
             </div>
           </div>
+          } @placeholder {
+            <div class="inspection-grid">
+              <p class="slots-empty">Loading scheduler…</p>
+            </div>
+          }
         </div>
 
         <!-- SMS Consent -->

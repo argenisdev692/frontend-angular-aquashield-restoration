@@ -15,6 +15,7 @@ export interface ContactSupportListResponse {
 'createdAt': string;
 'updatedAt': string;
 'deletedAt': string | null;
+'status': 'active' | 'suspended';
 }>;
   limit: number;
   page: number;

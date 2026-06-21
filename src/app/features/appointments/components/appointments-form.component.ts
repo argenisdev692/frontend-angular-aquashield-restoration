@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  resource,
-  signal,
-} from '@angular/core';
+import { Component, computed, inject, resource, signal } from '@angular/core';
 import {
   AbstractControl,
   FormGroup,
@@ -63,7 +56,6 @@ const BUSINESS_TZ = 'America/Chicago';
 
 @Component({
   selector: 'app-appointments-form',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ReactiveFormsModule,
     FormsModule,
@@ -98,9 +90,13 @@ export class AppointmentsFormComponent extends CrudFormBase<
   readonly minDate = new Date();
 
   // Day-level availability for the visible month → disabled calendar dates.
+  // Pass the 7h inspection duration so days fully consumed by existing
+  // appointments (±7h buffer) come back unavailable and render blocked, not
+  // just holidays/exceptions/closed weekdays.
   readonly calendarResource = resource({
     params: () => this.calendarMonth(),
-    loader: ({ params }) => this.availability.getCalendar(params.year, params.month),
+    loader: ({ params }) =>
+      this.availability.getCalendar(params.year, params.month, INSPECTION_DURATION_MINUTES),
   });
 
   readonly disabledDates = computed<Date[]>(() =>
@@ -257,11 +253,15 @@ export class AppointmentsFormComponent extends CrudFormBase<
   }
 
   // ── Helpers ──
-  private inspectionPairValidator = (group: AbstractControl): ValidationErrors | null => {
+  // Must be a prototype method (not an arrow field): `CrudFormBase` runs
+  // `form = this.buildForm()` during base construction, before this subclass's
+  // field initializers — an arrow-field validator would still be `undefined`
+  // there and silently never wire up.
+  private inspectionPairValidator(group: AbstractControl): ValidationErrors | null {
     const date = group.get('inspectionDate')?.value;
     const time = group.get('inspectionTime')?.value;
     return date && !time ? { inspectionTimeRequired: true } : null;
-  };
+  }
 
   /** "HH:mm" (Houston) → minutes-from-midnight; true when start + 7h ≤ 3 PM. */
   private slotEndsByCap(formattedTime: string): boolean {

@@ -19,6 +19,11 @@ export interface AppointmentsControllerFindAll$Params {
   limit?: number;
 
 /**
+ * Canonical soft-delete filter. `active` (default) = alive, `suspended` = soft-deleted (requires `Action.Restore`), `all` = both. Cannot be combined with `withTrashed`/`onlyTrashed`.
+ */
+  status?: 'active' | 'suspended' | 'all';
+
+/**
  * Include soft-deleted appointments alongside active ones (Laravel `withTrashed()`).
  */
   withTrashed?: (boolean | 'true' | 'false');
@@ -49,6 +54,7 @@ export function appointmentsControllerFindAll(http: HttpClient, rootUrl: string,
     rb.query('owner', params.owner, {});
     rb.query('page', params.page, {});
     rb.query('limit', params.limit, {});
+    rb.query('status', params.status, {});
     rb.query('withTrashed', params.withTrashed, {});
     rb.query('onlyTrashed', params.onlyTrashed, {});
     rb.query('start_date', params.start_date, {});

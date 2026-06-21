@@ -13,7 +13,7 @@ export interface AppointmentsControllerFindOne$Params {
   id: string;
 
 /**
- * When `true`, return the appointment even if it has been soft-deleted. Without it, soft-deleted rows yield 404.
+ * When `true`, return the appointment even if it has been soft-deleted (requires `Action.Restore`). Without it, soft-deleted rows yield 404.
  */
   withTrashed?: boolean;
 }

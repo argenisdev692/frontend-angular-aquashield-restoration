@@ -17,6 +17,11 @@ export interface AppointmentsControllerExport$Csv$Params {
   owner?: string;
 
 /**
+ * Canonical soft-delete filter. `active` (default) = alive, `suspended` = soft-deleted (requires `Action.Restore`), `all` = both. Cannot be combined with `withTrashed`/`onlyTrashed`.
+ */
+  status?: 'active' | 'suspended' | 'all';
+
+/**
  * Include soft-deleted appointments in the export.
  */
   withTrashed?: (boolean | 'true' | 'false');
@@ -46,6 +51,7 @@ export function appointmentsControllerExport$Csv(http: HttpClient, rootUrl: stri
     rb.query('state', params.state, {});
     rb.query('country', params.country, {});
     rb.query('owner', params.owner, {});
+    rb.query('status', params.status, {});
     rb.query('withTrashed', params.withTrashed, {});
     rb.query('onlyTrashed', params.onlyTrashed, {});
     rb.query('start_date', params.start_date, {});

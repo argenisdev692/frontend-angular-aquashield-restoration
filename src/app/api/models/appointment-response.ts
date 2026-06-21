@@ -32,6 +32,7 @@ export interface AppointmentResponse {
   registrationDate: string | null;
   smsConsent: boolean;
   state: string;
+  status: 'active' | 'suspended';
   statusLead: string | null;
   updatedAt: string;
   zipcode: string;

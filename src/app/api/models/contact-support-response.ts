@@ -12,6 +12,7 @@ export interface ContactSupportResponse {
   message: string;
   phone: string;
   smsConsent: boolean;
+  status: 'active' | 'suspended';
   subject: string;
   updatedAt: string;
 }
