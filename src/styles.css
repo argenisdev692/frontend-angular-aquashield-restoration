@@ -521,7 +521,9 @@ html {
     0 0 0 1px color-mix(in srgb, var(--accent-primary) 20%, transparent);
 }
 
-.modern-paginator .p-paginator-page.p-highlight {
+.modern-paginator .p-paginator-page.p-highlight,
+.modern-paginator .p-paginator-page-selected,
+.modern-paginator .p-paginator-page[aria-current="page"] {
   background: var(--grad-primary);
   color: #ffffff;
   border-color: rgba(0, 181, 226, 0.4);
