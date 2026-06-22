@@ -1843,3 +1843,52 @@ html {
 .aq-calendar .fc-highlight {
   background: color-mix(in srgb, var(--accent-primary) 18%, transparent);
 }
+
+/* ==========================================================================
+   Google Places Autocomplete dropdown (legacy .pac-container)
+   The SDK appends this to <body> with z-index:1000 — below PrimeNG dialogs
+   (appendTo="body"), so inside the appointment modal the suggestions render
+   BEHIND the mask and look like "autocomplete isn't working". Lift it above
+   the dialog/toast/confirm stack and map it to the theme tokens.
+   ========================================================================== */
+.pac-container {
+  z-index: 13000;
+  margin-top: var(--space-1);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 32px rgba(3, 8, 18, 0.45);
+  font-family: var(--font-sans);
+  overflow: hidden;
+}
+
+.pac-container .pac-item {
+  padding: var(--space-2) var(--space-3);
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-subtle);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.pac-container .pac-item:first-child {
+  border-top: none;
+}
+
+.pac-container .pac-item:hover,
+.pac-container .pac-item-selected {
+  background: var(--bg-hover);
+}
+
+.pac-container .pac-item-query,
+.pac-container .pac-matched {
+  color: var(--text-primary);
+}
+
+.pac-container .pac-icon {
+  filter: grayscale(1) opacity(0.6);
+}
+
+/* Google logo footer */
+.pac-container:after {
+  background-color: var(--bg-elevated);
+}
