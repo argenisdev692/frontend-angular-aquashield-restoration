@@ -216,14 +216,34 @@
   display: flex;
   align-items: flex-start;
   gap: var(--space-3);
+  width: 100%;
   padding: var(--space-4) var(--space-5);
+  border: none;
   border-bottom: 1px solid var(--border-subtle);
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  color: inherit;
   transition: background var(--transition);
   cursor: pointer;
 }
 
 .notif-item:hover {
   background: color-mix(in srgb, var(--text-primary) 3%, transparent);
+}
+
+.notif-item:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: -2px;
+}
+
+.notif-empty {
+  margin: 0;
+  padding: var(--space-6) var(--space-5);
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
 }
 
 .notif-item.unread {
@@ -448,11 +468,6 @@
     gap: var(--space-2);
     flex-shrink: 0;
     order: 1;
-  }
-
-  /* Hide inbox on mobile to keep only 2 notification icons */
-  .header-notifications .notif-wrapper:nth-child(3) {
-    display: none;
   }
 
   /* Search: full width, bottom row */

@@ -76,95 +76,101 @@
     </div>
 
     <div class="header-notifications">
-      <!-- Notifications -->
+      <!-- Appointments -->
       <div class="notif-wrapper">
-        <button type="button" class="notif-btn" (click)="toggleDropdown('notifications', $event)" aria-label="Notifications">
-          <i class="pi pi-bell notif-icon"></i>
-          @if (unreadCount(notifications()) > 0) {
-            <span class="notif-badge">{{ unreadCount(notifications()) }}</span>
+        <button type="button" class="notif-btn" (click)="toggleDropdown('appointments', $event)" aria-label="Appointment notifications">
+          <i class="pi pi-calendar notif-icon"></i>
+          @if (notifications.appointmentsUnread() > 0) {
+            <span class="notif-badge">{{ notifications.appointmentsUnread() }}</span>
           }
         </button>
-        @if (notificationsOpen()) {
+        @if (appointmentsOpen()) {
           <div class="notif-dropdown" (click)="$event.stopPropagation()">
             <div class="notif-header">
-              <span>Notifications</span>
-              <span class="notif-count">{{ unreadCount(notifications()) }} new</span>
+              <span>Appointments</span>
+              <span class="notif-count">{{ notifications.appointmentsUnread() }} new</span>
             </div>
             <div class="notif-list">
-              @for (item of notifications(); track $index) {
-                <div class="notif-item" [class.unread]="item.unread">
-                  <div class="notif-dot" [class.unread]="item.unread"></div>
+              @for (item of notifications.appointments(); track item.id) {
+                <button type="button" class="notif-item" [class.unread]="!item.isRead" (click)="openItem('appointment', item)">
+                  <div class="notif-dot" [class.unread]="!item.isRead"></div>
                   <div class="notif-content">
                     <p class="notif-title">{{ item.title }}</p>
                     <p class="notif-msg">{{ item.message }}</p>
-                    <span class="notif-time">{{ item.time }}</span>
+                    <span class="notif-time">{{ item.timeLabel }}</span>
                   </div>
-                </div>
+                </button>
+              } @empty {
+                <p class="notif-empty">No appointments yet</p>
               }
             </div>
-            <button class="notif-footer" (click)="closeDropdowns()">View all notifications</button>
+            <button class="notif-footer" (click)="viewAll('/appointments')">View all appointments</button>
           </div>
         }
       </div>
 
-      <!-- Messages -->
+      <!-- Contact Support -->
       <div class="notif-wrapper">
-        <button type="button" class="notif-btn" (click)="toggleDropdown('messages', $event)" aria-label="Messages">
+        <button type="button" class="notif-btn" (click)="toggleDropdown('contact', $event)" aria-label="Contact support notifications">
           <i class="pi pi-envelope notif-icon"></i>
-          @if (unreadCount(messages()) > 0) {
-            <span class="notif-badge">{{ unreadCount(messages()) }}</span>
+          @if (notifications.contactSupportUnread() > 0) {
+            <span class="notif-badge">{{ notifications.contactSupportUnread() }}</span>
           }
         </button>
-        @if (messagesOpen()) {
+        @if (contactOpen()) {
           <div class="notif-dropdown" (click)="$event.stopPropagation()">
             <div class="notif-header">
-              <span>Messages</span>
-              <span class="notif-count">{{ unreadCount(messages()) }} new</span>
+              <span>Contact Support</span>
+              <span class="notif-count">{{ notifications.contactSupportUnread() }} new</span>
             </div>
             <div class="notif-list">
-              @for (item of messages(); track $index) {
-                <div class="notif-item" [class.unread]="item.unread">
-                  <div class="notif-dot" [class.unread]="item.unread"></div>
+              @for (item of notifications.contactSupport(); track item.id) {
+                <button type="button" class="notif-item" [class.unread]="!item.isRead" (click)="openItem('contact-support', item)">
+                  <div class="notif-dot" [class.unread]="!item.isRead"></div>
                   <div class="notif-content">
                     <p class="notif-title">{{ item.title }}</p>
                     <p class="notif-msg">{{ item.message }}</p>
-                    <span class="notif-time">{{ item.time }}</span>
+                    <span class="notif-time">{{ item.timeLabel }}</span>
                   </div>
-                </div>
+                </button>
+              } @empty {
+                <p class="notif-empty">No support requests yet</p>
               }
             </div>
-            <button class="notif-footer" (click)="closeDropdowns()">View all messages</button>
+            <button class="notif-footer" (click)="viewAll('/contact-support')">View all support requests</button>
           </div>
         }
       </div>
 
-      <!-- Inbox -->
+      <!-- Retell Calls -->
       <div class="notif-wrapper">
-        <button type="button" class="notif-btn" (click)="toggleDropdown('inbox', $event)" aria-label="Inbox">
-          <i class="pi pi-inbox notif-icon"></i>
-          @if (unreadCount(inbox()) > 0) {
-            <span class="notif-badge">{{ unreadCount(inbox()) }}</span>
+        <button type="button" class="notif-btn" (click)="toggleDropdown('retell', $event)" aria-label="Retell call notifications">
+          <i class="pi pi-phone notif-icon"></i>
+          @if (notifications.retellUnread() > 0) {
+            <span class="notif-badge">{{ notifications.retellUnread() }}</span>
           }
         </button>
-        @if (inboxOpen()) {
+        @if (retellOpen()) {
           <div class="notif-dropdown" (click)="$event.stopPropagation()">
             <div class="notif-header">
-              <span>Inbox</span>
-              <span class="notif-count">{{ unreadCount(inbox()) }} new</span>
+              <span>Retell Calls</span>
+              <span class="notif-count">{{ notifications.retellUnread() }} new</span>
             </div>
             <div class="notif-list">
-              @for (item of inbox(); track $index) {
-                <div class="notif-item" [class.unread]="item.unread">
-                  <div class="notif-dot" [class.unread]="item.unread"></div>
+              @for (item of notifications.retell(); track item.id) {
+                <button type="button" class="notif-item" [class.unread]="!item.isRead" (click)="openItem('retell', item)">
+                  <div class="notif-dot" [class.unread]="!item.isRead"></div>
                   <div class="notif-content">
                     <p class="notif-title">{{ item.title }}</p>
                     <p class="notif-msg">{{ item.message }}</p>
-                    <span class="notif-time">{{ item.time }}</span>
+                    <span class="notif-time">{{ item.timeLabel }}</span>
                   </div>
-                </div>
+                </button>
+              } @empty {
+                <p class="notif-empty">No calls yet</p>
               }
             </div>
-            <button class="notif-footer" (click)="closeDropdowns()">View all inbox items</button>
+            <button class="notif-footer" (click)="viewAll('/retell-calls')">View all calls</button>
           </div>
         }
       </div>
