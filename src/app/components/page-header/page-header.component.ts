@@ -30,10 +30,6 @@ type DropdownKey = 'appointments' | 'contact' | 'retell';
   templateUrl: './page-header.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './page-header.component.css',
-  // `title` is both our @Input and a native global HTML attribute, so a static
-  // `title="Dashboard"` also lands on the host element and shows as a browser
-  // tooltip over every child (the notification icons). Strip the reflected attr.
-  host: { '[attr.title]': 'null' },
 })
 export class PageHeaderComponent implements OnInit {
   title = input.required<string>();
