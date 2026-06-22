@@ -2,6 +2,7 @@ import { Service, computed, inject, signal, PLATFORM_ID, WritableSignal } from '
 import { isPlatformBrowser } from '@angular/common';
 
 import { ApiConfiguration } from '../../api/api-configuration';
+import { formatUsPhone } from '../directives/phone-format.directive';
 import { AppointmentsFeatureService } from '../../features/appointments/services/appointments-feature.service';
 import { ContactSupportFeatureService } from '../../features/contact-support/services/contact-support-feature.service';
 import { RetellCallsFeatureService } from '../../features/retell-calls/services/retell-calls-feature.service';
@@ -227,7 +228,8 @@ export class HeaderNotificationsService {
   }
 
   private mapCall(r: CallRow): HeaderNotification {
-    const who = r.fromNumber || r.toNumber || 'Unknown number';
+    const rawNumber = r.fromNumber || r.toNumber;
+    const who = rawNumber ? formatUsPhone(rawNumber) : 'Unknown number';
     const detail = r.callSummary?.trim() || r.callStatus || r.direction || 'Retell call';
     return {
       id: r.id,
