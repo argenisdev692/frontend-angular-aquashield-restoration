@@ -95,6 +95,36 @@
   color: var(--text-muted);
 }
 
+/* PrimeNG datepicker — its inner input is rendered outside this component's
+   encapsulation, so `.form-input` can't reach it. Mirror the token styling on
+   the inner input via ::ng-deep so the trigger matches the other form inputs. */
+:host ::ng-deep .form-datepicker {
+  width: 100%;
+}
+:host ::ng-deep .form-datepicker .p-inputtext {
+  width: 100%;
+  height: var(--input-height);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--input-radius);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  padding: 0 var(--space-3);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+:host ::ng-deep .form-datepicker .p-inputtext:focus {
+  border-color: var(--input-border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 14%, transparent);
+}
+:host ::ng-deep .form-datepicker .p-inputtext::placeholder {
+  color: var(--text-muted);
+}
+:host ::ng-deep .form-datepicker .p-datepicker-input-icon {
+  color: var(--text-muted);
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;

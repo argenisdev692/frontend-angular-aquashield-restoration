@@ -29,8 +29,7 @@
             [readonlyInput]="true"
             placeholder="mm/dd/yyyy"
             appendTo="body"
-            inputStyleClass="form-input"
-            styleClass="w-full" />
+            styleClass="form-datepicker" />
           @if (form.get('date')?.invalid && form.get('date')?.touched) {
             <span class="field-error">Date is required</span>
           }
