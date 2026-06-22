@@ -246,16 +246,6 @@
             class="form-input" />
         </div>
 
-        <!-- Registration Date -->
-        <div class="form-field">
-          <label for="registrationDate">Registration Date</label>
-          <input
-            id="registrationDate"
-            type="date"
-            formControlName="registrationDate"
-            class="form-input" />
-        </div>
-
         <!-- Inspection scheduling -->
         <div class="form-field form-field--full inspection-block">
           <div class="inspection-head">
@@ -265,8 +255,9 @@
             }
           </div>
           <p class="field-hint">
-            Pick an available day, then a start time. Inspections run 7 hours and must finish by
-            3:00&nbsp;PM, so only early-morning starts are offered, and a booked day is fully blocked.
+            Pick an available day, then a start time. Start times run from 8:00&nbsp;AM to
+            4:00&nbsp;PM; each booking reserves a 7-hour gap, so nearby times disappear once a day
+            has an inspection, and a fully-booked day is blocked.
           </p>
 
           @defer (on viewport) {
@@ -274,6 +265,7 @@
             <div class="calendar-pane">
               <p-datepicker
                 [inline]="true"
+                dateFormat="mm/dd/yy"
                 [ngModel]="selectedDate()"
                 [ngModelOptions]="{ standalone: true }"
                 [minDate]="minDate"

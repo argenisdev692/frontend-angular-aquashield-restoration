@@ -45,7 +45,6 @@ interface AppointmentFormValue {
   longitude: number | null;
   statusLead: LeadStatus;
   owner: string;
-  registrationDate: string;
   inspectionDate: string;
   inspectionTime: string;
   smsConsent: boolean;
@@ -54,10 +53,13 @@ interface AppointmentFormValue {
   additionalNote: string;
 }
 
-/** An inspection occupies a full 7-hour block (matches the backend ±7h buffer). */
-const INSPECTION_DURATION_MINUTES = 420;
-/** Inspections must finish by 3:00 PM, so the latest start is 15:00 − 7h = 08:00. */
-const INSPECTION_END_CAP_MINUTES = 15 * 60;
+/**
+ * Sent as `serviceDuration` to the availability API. The backend no longer uses
+ * it to size slots — inspection spacing is its fixed ±7h buffer and the latest
+ * start is capped at 4 PM there — but a truthy value opts the month calendar into
+ * day-level capacity ('full') computation. Any value in the 15–480 range works.
+ */
+const SERVICE_DURATION_MINUTES = 60;
 /** Houston is the business timezone the slots are computed in. */
 const BUSINESS_TZ = 'America/Chicago';
 
@@ -103,13 +105,13 @@ export class AppointmentsFormComponent extends CrudFormBase<
   readonly minDate = new Date();
 
   // Day-level availability for the visible month → disabled calendar dates.
-  // Pass the 7h inspection duration so days fully consumed by existing
-  // appointments (±7h buffer) come back unavailable and render blocked, not
-  // just holidays/exceptions/closed weekdays.
+  // Passing a service duration opts the calendar into capacity checks, so days
+  // fully consumed by existing appointments (±7h buffer) come back unavailable
+  // and render blocked — not just holidays/exceptions/closed weekdays.
   readonly calendarResource = resource({
     params: () => this.calendarMonth(),
     loader: ({ params }) =>
-      this.availability.getCalendar(params.year, params.month, INSPECTION_DURATION_MINUTES),
+      this.availability.getCalendar(params.year, params.month, SERVICE_DURATION_MINUTES),
   });
 
   readonly disabledDates = computed<Date[]>(() =>
@@ -118,19 +120,16 @@ export class AppointmentsFormComponent extends CrudFormBase<
       .map((day) => this.parseYmd(day.date))
   );
 
-  // 30-min start slots for the selected day, capped so the inspection ends by 3 PM.
+  // 30-min start slots for the selected day. The backend already opens every
+  // start from 08:00 to the 4 PM cutoff and removes any within ±7h of an
+  // existing appointment, so the list is used as-is.
   readonly slotsResource = resource({
     params: () => {
       const date = this.selectedDate();
       return date ? { date: this.toLocalYmd(date) } : undefined;
     },
-    loader: async ({ params }) => {
-      const slots = await this.availability.getTimeSlots(
-        params.date,
-        INSPECTION_DURATION_MINUTES
-      );
-      return slots.filter((slot) => this.slotEndsByCap(slot.formattedTime));
-    },
+    loader: ({ params }) =>
+      this.availability.getTimeSlots(params.date, SERVICE_DURATION_MINUTES),
   });
 
   readonly slots = computed<TimeSlot[]>(() => this.slotsResource.value() ?? []);
@@ -161,7 +160,6 @@ export class AppointmentsFormComponent extends CrudFormBase<
         longitude: [null as number | null],
         statusLead: ['New' as LeadStatus],
         owner: [''],
-        registrationDate: [''],
         inspectionDate: [''],
         inspectionTime: [''],
         smsConsent: [false],
@@ -189,7 +187,6 @@ export class AppointmentsFormComponent extends CrudFormBase<
       longitude: entity.longitude ?? null,
       statusLead: entity.statusLead && entity.statusLead !== 'null' ? entity.statusLead : 'New',
       owner: entity.owner ?? '',
-      registrationDate: entity.registrationDate?.split('T')[0] ?? '',
       inspectionDate: entity.inspectionDate ?? '',
       inspectionTime: entity.inspectionTime ?? '',
       smsConsent: entity.smsConsent,
@@ -223,7 +220,6 @@ export class AppointmentsFormComponent extends CrudFormBase<
       longitude: v.longitude,
       statusLead: v.statusLead,
       owner: v.owner || null,
-      registrationDate: v.registrationDate || null,
       inspectionDate: v.inspectionDate || null,
       inspectionTime: v.inspectionTime || null,
       smsConsent: !!v.smsConsent,
@@ -305,13 +301,6 @@ export class AppointmentsFormComponent extends CrudFormBase<
     const date = group.get('inspectionDate')?.value;
     const time = group.get('inspectionTime')?.value;
     return date && !time ? { inspectionTimeRequired: true } : null;
-  }
-
-  /** "HH:mm" (Houston) → minutes-from-midnight; true when start + 7h ≤ 3 PM. */
-  private slotEndsByCap(formattedTime: string): boolean {
-    const [h, m] = formattedTime.split(':').map(Number);
-    const start = (h ?? 0) * 60 + (m ?? 0);
-    return start + INSPECTION_DURATION_MINUTES <= INSPECTION_END_CAP_MINUTES;
   }
 
   private formatBusinessTime(iso: string): string {

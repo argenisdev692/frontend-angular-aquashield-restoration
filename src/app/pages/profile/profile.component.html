@@ -98,12 +98,18 @@
             <div class="form-row">
               <div class="form-field">
                 <label for="dateOfBirth">Date of Birth</label>
-                <input
-                  pInputText
-                  id="dateOfBirth"
-                  type="date"
-                  [(ngModel)]="editForm.dateOfBirth"
-                  class="form-input"
+                <p-datepicker
+                  inputId="dateOfBirth"
+                  [(ngModel)]="dobDate"
+                  [ngModelOptions]="{ standalone: true }"
+                  dateFormat="mm/dd/yy"
+                  [showIcon]="true"
+                  iconDisplay="input"
+                  [readonlyInput]="true"
+                  placeholder="mm/dd/yyyy"
+                  appendTo="body"
+                  inputStyleClass="form-input"
+                  styleClass="w-full"
                 />
               </div>
               <div class="form-field">

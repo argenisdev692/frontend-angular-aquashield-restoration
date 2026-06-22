@@ -20,6 +20,8 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PanelModule } from 'primeng/panel';
 import { DialogModule } from 'primeng/dialog';
+import { DatePickerModule } from 'primeng/datepicker';
+import { ymdToLocalDate, localDateToYmd } from '../../shared/date.util';
 import { AuthFeatureService } from '../../features/auth/services/auth.service';
 import { NotificationService } from '../../shared/notifications/notification.service';
 import { ConfirmService } from '../../shared/notifications/confirm.service';
@@ -53,6 +55,7 @@ import { FloatingMenuButtonComponent } from '../../components/floating-menu-butt
     ImageCropperDialogComponent,
     FloatingMenuButtonComponent,
     DialogModule,
+    DatePickerModule,
     PhoneFormatDirective,
     AddressAutocompleteDirective,
   ],
@@ -106,6 +109,9 @@ export class ProfileComponent implements OnInit {
   protected readonly mapsError = signal<string | null>(null);
 
   protected editForm: Partial<UpdateProfileDto> = {};
+  /** Date-of-birth bound to the PrimeNG datepicker; mirrored into
+   *  `editForm.dateOfBirth` (YYYY-MM-DD) on save. */
+  protected dobDate: Date | null = null;
   protected passwordForm = { currentPassword: '', newPassword: '', confirmPassword: '' };
 
   protected readonly canUpdatePassword = computed(() => {
@@ -166,6 +172,7 @@ export class ProfileComponent implements OnInit {
       zipCode: u?.zipCode ?? undefined,
       country: u?.country ?? undefined,
     };
+    this.dobDate = ymdToLocalDate(u?.dateOfBirth);
   }
 
   /** Autofill address fields from a Google Places selection (USA only). */
@@ -193,6 +200,7 @@ export class ProfileComponent implements OnInit {
 
   async saveProfile(): Promise<void> {
     this.savingProfile.set(true);
+    this.editForm.dateOfBirth = localDateToYmd(this.dobDate);
     try {
       await this.generatedAuthService.authControllerUpdateMe({
         body: this.editForm as UpdateProfileDto,

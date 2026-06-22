@@ -43,19 +43,19 @@ describe('AvailabilityExceptionFormComponent', () => {
   it('requires a date', () => {
     const cmp = create();
     expect(cmp.form.valid).toBe(false);
-    cmp.form.patchValue({ date: '2026-07-04' });
+    cmp.form.patchValue({ date: new Date(2026, 6, 4) });
     expect(cmp.form.valid).toBe(true);
   });
 
-  it('toCreateDto normalises an empty reason to null', () => {
+  it('toCreateDto serialises the picked Date to YYYY-MM-DD and nulls an empty reason', () => {
     expect(
-      create().toCreateDto({ date: '2026-07-04', isAvailable: false, reason: '' })
+      create().toCreateDto({ date: new Date(2026, 6, 4), isAvailable: false, reason: '' })
     ).toEqual({ date: '2026-07-04', isAvailable: false, reason: null });
   });
 
   it('toCreateDto keeps a provided reason and coerces availability to boolean', () => {
     expect(
-      create().toCreateDto({ date: '2026-12-25', isAvailable: true, reason: 'Christmas' })
+      create().toCreateDto({ date: new Date(2026, 11, 25), isAvailable: true, reason: 'Christmas' })
     ).toEqual({ date: '2026-12-25', isAvailable: true, reason: 'Christmas' });
   });
 });

@@ -101,7 +101,6 @@ describe('AppointmentsFormComponent', () => {
       longitude: null,
       statusLead: 'New',
       owner: '',
-      registrationDate: '',
       inspectionDate: '',
       inspectionTime: '',
       smsConsent: false,
