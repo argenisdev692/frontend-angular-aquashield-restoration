@@ -17,6 +17,7 @@ import {
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideApiConfiguration } from './api/api-configuration';
 import { authInterceptor } from './api/interceptors/auth.interceptor';
+import { rateLimitInterceptor } from './api/interceptors/rate-limit.interceptor';
 
 // Typed, `any`-free access to build-time env (NG_APP_* are embedded in the client bundle)
 const buildEnv =
@@ -44,7 +45,7 @@ export const appConfig: ApplicationConfig = {
         },
       },
     }),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor, rateLimitInterceptor])),
     provideApiConfiguration(apiBaseUrl),
   ],
 };
