@@ -1256,6 +1256,25 @@ html {
   background: var(--bg-hover);
 }
 
+/* Appointment-calendar dialogs: centered title with the close button kept right. */
+.appt-dialog .p-dialog-header {
+  position: relative;
+  justify-content: center;
+}
+
+.appt-dialog .p-dialog-title {
+  width: 100%;
+  text-align: center;
+}
+
+.appt-dialog .p-dialog-header-actions,
+.appt-dialog .p-dialog-close-button {
+  position: absolute;
+  top: 50%;
+  right: var(--space-5);
+  transform: translateY(-50%);
+}
+
 .p-dialog .p-dialog-content {
   background: var(--bg-card);
   color: var(--text-primary);

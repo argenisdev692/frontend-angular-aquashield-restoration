@@ -262,11 +262,24 @@ export class AppointmentsCalendarComponent {
     this.calendar()?.getApi().refetchEvents();
   }
 
+  // The appointments endpoint caps `limit` (500 → HTTP 400) and its date filter
+  // targets `createdAt`, not `inspectionDate`, so we page through alive rows at a
+  // safe size and let the FullCalendar feed filter by the visible range. No
+  // `status` param — alive rows are the default response, which is what we want.
   private async loadAppointments(): Promise<void> {
     this.isLoading.set(true);
     try {
-      const resp = await this.api.getAll({ limit: 500, status: 'active' });
-      this.appointments.set(resp.data ?? []);
+      const pageSize = 100;
+      const all: AppointmentResponse[] = [];
+      // Safety ceiling: 20 pages = 2000 appointments.
+      for (let page = 1; page <= 20; page++) {
+        const resp = await this.api.getAll({ page, limit: pageSize });
+        const rows = resp.data ?? [];
+        all.push(...rows);
+        const total = resp.total ?? all.length;
+        if (rows.length < pageSize || all.length >= total) break;
+      }
+      this.appointments.set(all);
     } catch (error) {
       this.notify.error(error, 'Failed to load appointments');
     } finally {
