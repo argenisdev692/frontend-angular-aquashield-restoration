@@ -120,27 +120,77 @@
             <div class="form-row full">
               <div class="form-field">
                 <label for="address">Address</label>
-                <input pInputText id="address" [(ngModel)]="editForm.address" class="form-input" />
+                <input
+                  pInputText
+                  id="address"
+                  appAddressAutocomplete
+                  [(ngModel)]="editForm.address"
+                  name="address"
+                  placeholder="Start typing to search…"
+                  class="form-input"
+                  (placeSelected)="onPlaceSelected($event)"
+                  (placeCleared)="onAddressCleared()"
+                  (mapsLoadingChange)="mapsLoading.set($event)"
+                  (mapsErrored)="mapsError.set($event)"
+                />
+                @if (mapsLoading()) {
+                  <span class="field-hint"><i class="pi pi-spin pi-spinner"></i> Loading maps…</span>
+                }
+                @if (mapsError()) {
+                  <span class="field-error">{{ mapsError() }}</span>
+                }
               </div>
             </div>
             <div class="form-row">
               <div class="form-field">
                 <label for="city">City</label>
-                <input pInputText id="city" [(ngModel)]="editForm.city" class="form-input" />
+                <input
+                  pInputText
+                  id="city"
+                  [(ngModel)]="editForm.city"
+                  name="city"
+                  class="form-input"
+                  placeholder="Autofilled from address"
+                  [readonly]="true"
+                />
               </div>
               <div class="form-field">
                 <label for="state">State</label>
-                <input pInputText id="state" [(ngModel)]="editForm.state" class="form-input" />
+                <input
+                  pInputText
+                  id="state"
+                  [(ngModel)]="editForm.state"
+                  name="state"
+                  class="form-input"
+                  placeholder="Autofilled from address"
+                  [readonly]="true"
+                />
               </div>
             </div>
             <div class="form-row">
               <div class="form-field">
                 <label for="zipCode">ZIP Code</label>
-                <input pInputText id="zipCode" [(ngModel)]="editForm.zipCode" class="form-input" />
+                <input
+                  pInputText
+                  id="zipCode"
+                  [(ngModel)]="editForm.zipCode"
+                  name="zipCode"
+                  class="form-input"
+                  placeholder="Autofilled from address"
+                  [readonly]="true"
+                />
               </div>
               <div class="form-field">
                 <label for="country">Country</label>
-                <input pInputText id="country" [(ngModel)]="editForm.country" class="form-input" />
+                <input
+                  pInputText
+                  id="country"
+                  [(ngModel)]="editForm.country"
+                  name="country"
+                  class="form-input"
+                  placeholder="Autofilled from address"
+                  [readonly]="true"
+                />
               </div>
             </div>
             <div class="form-actions">

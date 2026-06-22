@@ -98,6 +98,7 @@
             placeholder="Start typing to search…"
             class="form-input"
             (placeSelected)="onPlaceSelected($event)"
+            (placeCleared)="onAddressCleared()"
             (mapsLoadingChange)="mapsLoading.set($event)"
             (mapsErrored)="mapsError.set($event)"
             [attr.aria-invalid]="form.get('address')?.invalid && form.get('address')?.touched"

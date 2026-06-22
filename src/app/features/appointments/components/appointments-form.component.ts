@@ -254,6 +254,18 @@ export class AppointmentsFormComponent extends CrudFormBase<
     });
   }
 
+  /** Clearing the street input wipes the autofilled dependent fields. */
+  onAddressCleared(): void {
+    this.form.patchValue({
+      city: '',
+      state: '',
+      zipcode: '',
+      country: '',
+      latitude: null,
+      longitude: null,
+    });
+  }
+
   // ── Booking interactions ──
   onDateSelected(date: Date): void {
     this.selectedDate.set(date);

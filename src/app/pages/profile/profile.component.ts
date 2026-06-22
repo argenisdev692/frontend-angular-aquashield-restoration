@@ -11,6 +11,10 @@ import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { PhoneFormatDirective } from '../../shared/directives/phone-format.directive';
+import {
+  AddressAutocompleteDirective,
+  PlaceSelection,
+} from '../../shared/directives/address-autocomplete.directive';
 import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -50,6 +54,7 @@ import { FloatingMenuButtonComponent } from '../../components/floating-menu-butt
     FloatingMenuButtonComponent,
     DialogModule,
     PhoneFormatDirective,
+    AddressAutocompleteDirective,
   ],
   templateUrl: './profile.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -95,6 +100,10 @@ export class ProfileComponent implements OnInit {
   protected readonly loadingDevices = signal(false);
   protected readonly revokingId = signal<string | null>(null);
   protected readonly loggingOutAll = signal(false);
+
+  // ── Address autocomplete (Google Maps, USA only) ──
+  protected readonly mapsLoading = signal(false);
+  protected readonly mapsError = signal<string | null>(null);
 
   protected editForm: Partial<UpdateProfileDto> = {};
   protected passwordForm = { currentPassword: '', newPassword: '', confirmPassword: '' };
@@ -156,6 +165,29 @@ export class ProfileComponent implements OnInit {
       state: u?.state ?? undefined,
       zipCode: u?.zipCode ?? undefined,
       country: u?.country ?? undefined,
+    };
+  }
+
+  /** Autofill address fields from a Google Places selection (USA only). */
+  onPlaceSelected(place: PlaceSelection): void {
+    this.editForm = {
+      ...this.editForm,
+      address: place.address,
+      city: place.city,
+      state: place.state,
+      zipCode: place.zipcode,
+      country: place.country,
+    };
+  }
+
+  /** Clearing the street input wipes the autofilled dependent fields. */
+  onAddressCleared(): void {
+    this.editForm = {
+      ...this.editForm,
+      city: '',
+      state: '',
+      zipCode: '',
+      country: '',
     };
   }
 

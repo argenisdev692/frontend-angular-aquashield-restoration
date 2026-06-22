@@ -36,6 +36,9 @@ function pick(
  */
 @Directive({
   selector: '[appAddressAutocomplete]',
+  host: {
+    '(input)': 'onInput()',
+  },
 })
 export class AddressAutocompleteDirective implements OnInit, OnDestroy {
   private readonly el = inject<ElementRef<HTMLInputElement>>(ElementRef);
@@ -43,6 +46,8 @@ export class AddressAutocompleteDirective implements OnInit, OnDestroy {
   private readonly ngControl = inject(NgControl, { optional: true, self: true });
 
   readonly placeSelected = output<PlaceSelection>();
+  /** Emitted when the user clears the street input — host should reset dependent fields. */
+  readonly placeCleared = output<void>();
   readonly mapsLoadingChange = output<boolean>();
   readonly mapsErrored = output<string | null>();
 
@@ -75,6 +80,8 @@ export class AddressAutocompleteDirective implements OnInit, OnDestroy {
     this.autocomplete = new google.maps.places.Autocomplete(input, {
       types: ['address'],
       fields: ['formatted_address', 'address_components', 'geometry'],
+      // Restrict suggestions to United States territory only.
+      componentRestrictions: { country: 'us' },
     });
 
     this.listener = this.autocomplete.addListener('place_changed', () => {
@@ -108,6 +115,13 @@ export class AddressAutocompleteDirective implements OnInit, OnDestroy {
 
       this.placeSelected.emit(selection);
     });
+  }
+
+  /** Fires on every keystroke; when the street input is emptied, ask the host to reset. */
+  protected onInput(): void {
+    if (this.el.nativeElement.value.trim() === '') {
+      this.placeCleared.emit();
+    }
   }
 
   private detach(): void {

@@ -277,6 +277,19 @@
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--input-border-focus) 20%, transparent);
 }
 
+.field-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.field-error {
+  font-size: var(--text-xs);
+  color: var(--accent-error);
+}
+
 .form-actions {
   display: flex;
   justify-content: flex-end;
