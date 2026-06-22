@@ -301,6 +301,9 @@
 }
 :host ::ng-deep .form-datepicker .p-datepicker-input-icon {
   color: var(--text-muted);
+  top: 50%;
+  margin-top: 0;
+  transform: translateY(calc(-50% - 2px));
 }
 
 .field-hint {
