@@ -1,0 +1,301 @@
+<app-sidebar [visible]="drawerVisible()" (visibleChange)="drawerVisible.set($event)"></app-sidebar>
+
+<div class="appointments-calendar-page">
+  <app-page-header
+    title="Appointments Calendar"
+    subtitle="Schedule and manage inspections at a glance"
+    (menuToggle)="drawerVisible.set(true)" />
+
+  <div class="calendar-toolbar">
+    <button class="btn btn--ghost" type="button" (click)="goToList()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      <span>List view</span>
+    </button>
+
+    <div class="calendar-legend" aria-hidden="true">
+      <span class="legend-item"><i class="legend-dot fc-appt-confirmed"></i> Confirmed</span>
+      <span class="legend-item"><i class="legend-dot fc-appt-pending"></i> Pending</span>
+      <span class="legend-item"><i class="legend-dot fc-appt-completed"></i> Completed</span>
+      <span class="legend-item"><i class="legend-dot fc-appt-declined"></i> Declined</span>
+      <span class="legend-item"><i class="legend-dot legend-dot--blocked"></i> Unavailable</span>
+    </div>
+  </div>
+
+  <div class="card-modern calendar-card">
+    @if (isBrowser) {
+      <full-calendar class="aq-calendar" [options]="calendarOptions" />
+    } @else {
+      <p class="calendar-ssr-placeholder">Loading calendar…</p>
+    }
+  </div>
+</div>
+
+<!-- ── Quick-create dialog ── -->
+<p-dialog
+  [visible]="createDialogVisible()"
+  (visibleChange)="createDialogVisible.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [dismissableMask]="true"
+  header="New inspection"
+  styleClass="appt-dialog"
+  appendTo="body">
+
+  @if (createDate(); as day) {
+    <p class="dialog-subtitle">
+      {{ day | date: 'fullDate' }}
+      @if (createSlotLabel()) {
+        · <strong>{{ createSlotLabel() }}</strong>
+      }
+    </p>
+  }
+
+  <form class="dialog-form" [formGroup]="createForm" (ngSubmit)="onCreateSubmit()">
+    <div class="dialog-grid">
+      <div class="form-field">
+        <label for="qc-first">First Name <span class="required">*</span></label>
+        <input id="qc-first" type="text" pInputText formControlName="firstName" class="form-input" placeholder="First name" />
+        @if (createForm.get('firstName')?.invalid && createForm.get('firstName')?.touched) {
+          <span class="field-error">Required (min 2 characters)</span>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="qc-last">Last Name <span class="required">*</span></label>
+        <input id="qc-last" type="text" pInputText formControlName="lastName" class="form-input" placeholder="Last name" />
+        @if (createForm.get('lastName')?.invalid && createForm.get('lastName')?.touched) {
+          <span class="field-error">Required (min 2 characters)</span>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="qc-phone">Phone <span class="required">*</span></label>
+        <input id="qc-phone" type="tel" pInputText appPhoneFormat formControlName="phone" class="form-input" placeholder="(555) 000 0000" />
+        @if (createForm.get('phone')?.invalid && createForm.get('phone')?.touched) {
+          <span class="field-error">Phone is required</span>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="qc-email">Email</label>
+        <input id="qc-email" type="email" pInputText formControlName="email" class="form-input" placeholder="client@example.com" />
+        @if (createForm.get('email')?.invalid && createForm.get('email')?.touched) {
+          <span class="field-error">Invalid email format</span>
+        }
+      </div>
+
+      <div class="form-field form-field--full">
+        <label for="qc-address">Address <span class="required">*</span></label>
+        <input
+          id="qc-address"
+          type="text"
+          pInputText
+          appAddressAutocomplete
+          formControlName="address"
+          class="form-input"
+          placeholder="Start typing to search…"
+          (placeSelected)="onPlaceSelected($event)"
+          (placeCleared)="onAddressCleared()"
+          (mapsLoadingChange)="mapsLoading.set($event)"
+          (mapsErrored)="mapsError.set($event)" />
+        @if (mapsLoading()) {
+          <span class="field-hint"><i class="pi pi-spin pi-spinner"></i> Loading maps…</span>
+        }
+        @if (mapsError()) {
+          <span class="field-error">{{ mapsError() }}</span>
+        }
+        @if (createForm.get('address')?.invalid && createForm.get('address')?.touched) {
+          <span class="field-error">Address is required</span>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="qc-city">City <span class="required">*</span></label>
+        <input id="qc-city" type="text" pInputText formControlName="city" class="form-input" [readonly]="true" placeholder="Autofilled" />
+      </div>
+
+      <div class="form-field">
+        <label for="qc-state">State <span class="required">*</span></label>
+        <input id="qc-state" type="text" pInputText formControlName="state" class="form-input" [readonly]="true" placeholder="Autofilled" />
+      </div>
+
+      <div class="form-field">
+        <label for="qc-zip">Zipcode <span class="required">*</span></label>
+        <input id="qc-zip" type="text" pInputText formControlName="zipcode" class="form-input" [readonly]="true" placeholder="Autofilled" />
+      </div>
+
+      <div class="form-field">
+        <label for="qc-country">Country <span class="required">*</span></label>
+        <input id="qc-country" type="text" pInputText formControlName="country" class="form-input" [readonly]="true" placeholder="Autofilled" />
+      </div>
+
+      <div class="form-field">
+        <label for="qc-status">Lead Status</label>
+        <select id="qc-status" formControlName="statusLead" class="form-input">
+          @for (status of leadStatusOptions; track status) {
+            <option [value]="status">{{ status }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label for="qc-owner">Owner</label>
+        <input id="qc-owner" type="text" pInputText formControlName="owner" class="form-input" placeholder="Assigned owner" />
+      </div>
+    </div>
+
+    <!-- Time-slot picker for the chosen day -->
+    <div class="form-field form-field--full slot-block">
+      <label>Start time <span class="required">*</span></label>
+      @if (createSlotsResource.isLoading()) {
+        <p class="slots-empty">Loading times…</p>
+      } @else if (createSlotsResource.error()) {
+        <p class="slots-empty slots-error">
+          Couldn’t load times.
+          <button type="button" class="btn-link-clear" (click)="createSlotsResource.reload()">Retry</button>
+        </p>
+      } @else if (createSlots().length === 0) {
+        <p class="slots-empty">No available times for this date.</p>
+      } @else {
+        <div class="slots-list" role="listbox" aria-label="Available start times">
+          @for (slot of createSlots(); track slot.time) {
+            <button
+              type="button"
+              role="option"
+              class="slot-chip"
+              [class.slot-chip--selected]="slot.time === createSlotIso()"
+              [attr.aria-selected]="slot.time === createSlotIso()"
+              (click)="onCreateSlotSelected(slot)">
+              {{ slot.formattedTime }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="dialog-actions">
+      <button class="btn btn--ghost" type="button" (click)="createDialogVisible.set(false)">Cancel</button>
+      <button class="btn btn--primary" type="submit" [disabled]="createSubmitting()">
+        @if (createSubmitting()) { <span class="spinner"></span> }
+        Create appointment
+      </button>
+    </div>
+  </form>
+</p-dialog>
+
+<!-- ── Details dialog ── -->
+<p-dialog
+  [visible]="detailDialogVisible()"
+  (visibleChange)="detailDialogVisible.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [dismissableMask]="true"
+  header="Inspection details"
+  styleClass="appt-dialog appt-dialog--sm"
+  appendTo="body">
+
+  @if (selectedAppt(); as appt) {
+    <div class="detail-body">
+      <div class="detail-row detail-row--head">
+        <span class="detail-name">{{ fullName(appt) }}</span>
+        <span [class]="statusBadgeClass(appt)">
+          {{ appt.inspectionStatus && appt.inspectionStatus !== 'null' ? appt.inspectionStatus : 'Unscheduled' }}
+        </span>
+      </div>
+      <dl class="detail-list">
+        <div class="detail-item"><dt>When</dt><dd>{{ inspectionLabel(appt) }}</dd></div>
+        <div class="detail-item"><dt>Phone</dt><dd>{{ appt.phone }}</dd></div>
+        <div class="detail-item"><dt>Location</dt><dd>{{ location(appt) }}</dd></div>
+        <div class="detail-item"><dt>Address</dt><dd>{{ appt.address }}</dd></div>
+        @if (appt.owner) {
+          <div class="detail-item"><dt>Owner</dt><dd>{{ appt.owner }}</dd></div>
+        }
+      </dl>
+    </div>
+
+    <div class="dialog-actions dialog-actions--spread">
+      <button class="btn btn--ghost" type="button" (click)="openFullRecord()">Open full record</button>
+      <div class="dialog-actions">
+        <button class="btn btn--danger" type="button" (click)="onDeleteSelected()">Delete</button>
+        <button class="btn btn--primary" type="button" (click)="openReschedule()">Reschedule</button>
+      </div>
+    </div>
+  }
+</p-dialog>
+
+<!-- ── Reschedule dialog ── -->
+<p-dialog
+  [visible]="rescheduleDialogVisible()"
+  (visibleChange)="rescheduleDialogVisible.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [dismissableMask]="true"
+  header="Reschedule inspection"
+  styleClass="appt-dialog"
+  appendTo="body">
+
+  @if (rescheduleAppt(); as appt) {
+    <p class="dialog-subtitle">{{ fullName(appt) }} — currently {{ inspectionLabel(appt) }}</p>
+  }
+
+  <p class="field-hint">
+    Pick an available day, then a start time. Booked, closed and past days are disabled.
+  </p>
+
+  <div class="reschedule-grid">
+    <div class="calendar-pane">
+      <p-datepicker
+        [inline]="true"
+        dateFormat="mm/dd/yy"
+        [ngModel]="rescheduleDate()"
+        [ngModelOptions]="{ standalone: true }"
+        [minDate]="minDate"
+        [disabledDates]="rescheduleDisabledDates()"
+        (onSelect)="onRescheduleDateSelected($event)"
+        (onMonthChange)="onRescheduleMonthChange($event)"
+        styleClass="inspection-calendar" />
+    </div>
+
+    <div class="slots-pane">
+      @if (!rescheduleDate()) {
+        <p class="slots-empty">Select a date to see available start times.</p>
+      } @else if (rescheduleSlotsResource.isLoading()) {
+        <p class="slots-empty">Loading times…</p>
+      } @else if (rescheduleSlotsResource.error()) {
+        <p class="slots-empty slots-error">
+          Couldn’t load times.
+          <button type="button" class="btn-link-clear" (click)="rescheduleSlotsResource.reload()">Retry</button>
+        </p>
+      } @else if (rescheduleSlots().length === 0) {
+        <p class="slots-empty">No available times for this date.</p>
+      } @else {
+        <div class="slots-list" role="listbox" aria-label="Available start times">
+          @for (slot of rescheduleSlots(); track slot.time) {
+            <button
+              type="button"
+              role="option"
+              class="slot-chip"
+              [class.slot-chip--selected]="slot.time === rescheduleSlotIso()"
+              [attr.aria-selected]="slot.time === rescheduleSlotIso()"
+              (click)="onRescheduleSlotSelected(slot)">
+              {{ slot.formattedTime }}
+            </button>
+          }
+        </div>
+      }
+      @if (rescheduleSlotLabel()) {
+        <p class="slot-selected-label">New start: <strong>{{ rescheduleSlotLabel() }}</strong></p>
+      }
+    </div>
+  </div>
+
+  <div class="dialog-actions">
+    <button class="btn btn--ghost" type="button" (click)="rescheduleDialogVisible.set(false)">Cancel</button>
+    <button class="btn btn--primary" type="button" [disabled]="!rescheduleSlotIso()" (click)="onRescheduleSubmit()">
+      Reschedule
+    </button>
+  </div>
+</p-dialog>

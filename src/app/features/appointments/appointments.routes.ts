@@ -6,6 +6,13 @@ import { AppointmentsDetailComponent } from './components/appointments-detail.co
 export const appointmentsRoutes: Routes = [
   { path: '', component: AppointmentsListComponent },
   { path: 'new', component: AppointmentsFormComponent },
+  {
+    path: 'calendar',
+    loadComponent: () =>
+      import('./components/appointments-calendar.component').then(
+        (m) => m.AppointmentsCalendarComponent
+      ),
+  },
   { path: ':id', component: AppointmentsDetailComponent },
   { path: ':id/edit', component: AppointmentsFormComponent },
 ];

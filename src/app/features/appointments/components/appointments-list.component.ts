@@ -140,6 +140,11 @@ export class AppointmentsListComponent extends CrudListBase<AppointmentResponse>
   readonly appointments = this.items;
   readonly appointmentsResource = this.dataResource;
 
+  // Jump to the Google-Calendar–style scheduling board.
+  goToCalendar(): void {
+    this.router.navigate(['/appointments/calendar']);
+  }
+
   // ── Appointment-specific helpers ──
   fullName(appointment: AppointmentResponse): string {
     return `${appointment.firstName} ${appointment.lastName}`.trim();

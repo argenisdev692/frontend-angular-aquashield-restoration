@@ -1716,3 +1716,111 @@ html {
   .aq-confirm-backdrop,
   .aq-confirm { animation: none; }
 }
+/* ===========================================================================
+   FullCalendar (appointments scheduling board) — token-mapped theme
+   FullCalendar v6 injects its own base CSS; we override only via its CSS vars
+   plus a few class hooks. Lives here (global) because FC builds its DOM
+   dynamically, so component-scoped styles never match it.
+   =========================================================================== */
+.aq-calendar {
+  --fc-border-color: var(--border-subtle);
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: color-mix(in srgb, var(--bg-overlay) 35%, transparent);
+  --fc-today-bg-color: color-mix(in srgb, var(--accent-primary) 10%, transparent);
+  --fc-now-indicator-color: var(--accent-error);
+  --fc-event-bg-color: var(--accent-primary);
+  --fc-event-border-color: var(--accent-primary);
+  --fc-event-text-color: #ffffff;
+  --fc-list-event-hover-bg-color: var(--bg-hover);
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+}
+
+.aq-calendar .fc-col-header-cell-cushion,
+.aq-calendar .fc-daygrid-day-number,
+.aq-calendar .fc-timegrid-axis-cushion,
+.aq-calendar .fc-timegrid-slot-label-cushion {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.aq-calendar .fc-toolbar-title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+}
+
+/* Toolbar buttons → token-styled (override FC's default blue) */
+.aq-calendar .fc .fc-button-primary {
+  background: color-mix(in srgb, var(--bg-elevated) 70%, transparent);
+  border-color: var(--border-default);
+  color: var(--text-secondary);
+  font-weight: var(--font-medium);
+  text-transform: capitalize;
+  transition: all var(--transition);
+}
+
+.aq-calendar .fc .fc-button-primary:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.aq-calendar .fc .fc-button-primary:not(:disabled).fc-button-active,
+.aq-calendar .fc .fc-button-primary:not(:disabled):active {
+  background: var(--grad-primary);
+  border-color: var(--accent-primary);
+  color: #ffffff;
+}
+
+.aq-calendar .fc .fc-button-primary:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+.aq-calendar .fc .fc-button:disabled {
+  opacity: 0.5;
+}
+
+/* Appointment events colored by inspection status */
+.aq-calendar .fc-appt {
+  border-radius: var(--radius-sm);
+  border: none;
+  padding: 1px 4px;
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+}
+
+.aq-calendar .fc-appt-confirmed { background: var(--accent-success); color: #04140d; }
+.aq-calendar .fc-appt-pending   { background: var(--accent-warning); color: #1a1204; }
+.aq-calendar .fc-appt-completed { background: var(--accent-info); color: #ffffff; }
+.aq-calendar .fc-appt-declined  { background: var(--accent-error); color: #ffffff; }
+.aq-calendar .fc-appt-default   { background: var(--text-muted); color: var(--bg-base); }
+
+/* Unavailable days → muted hatched background (holiday/closed/full/past) */
+.aq-calendar .fc-day-blocked {
+  background: repeating-linear-gradient(
+    45deg,
+    color-mix(in srgb, var(--text-muted) 14%, transparent),
+    color-mix(in srgb, var(--text-muted) 14%, transparent) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+  opacity: 0.9;
+}
+
+.aq-calendar .fc-day-blocked--past {
+  background: color-mix(in srgb, var(--bg-void) 40%, transparent);
+}
+
+/* Available future days invite a click */
+.aq-calendar .fc-daygrid-day:not(.fc-day-past):hover {
+  background: color-mix(in srgb, var(--accent-primary) 6%, transparent);
+  cursor: pointer;
+}
+
+.aq-calendar .fc-highlight {
+  background: color-mix(in srgb, var(--accent-primary) 18%, transparent);
+}
